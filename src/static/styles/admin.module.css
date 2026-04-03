@@ -1,0 +1,3 @@
+.gridWrapper :global(.ag-header-cell-resize::after) {
+  content: none !important;
+}
