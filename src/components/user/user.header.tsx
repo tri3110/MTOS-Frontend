@@ -85,8 +85,8 @@ const Header = () => {
                     <div className="flex gap-6 items-center">
                         <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
                             <Image
-                                width={70}
-                                height={20}
+                                width={120}
+                                height={50}
                                 className="dark:hidden"
                                 src="/logo.png"
                                 alt="Logo"

@@ -40,11 +40,9 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
         onClick={toggleDropdown} 
         className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
       >
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
+        <span className="mr-1 overflow-hidden rounded-full h-11 w-11">
           <AvatarUser name={user?.full_name?.trim() || user?.email || "A"} w={11} h={11}/>
         </span>
-
-        <span className="block mr-1 font-medium text-theme-sm">Musharof</span>
 
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
