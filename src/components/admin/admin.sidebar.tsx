@@ -4,12 +4,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/sidebar.context";
-import { 
-  ChevronDownIcon, 
-  EllipsisHorizontalIcon, 
-  Squares2X2Icon, 
-  TableCellsIcon,
-} from "@heroicons/react/20/solid";
+import {
+  Squares2X2Icon,
+  ClipboardDocumentListIcon,
+  CubeIcon,
+  TagIcon,
+  PhotoIcon,
+  SparklesIcon,
+  AdjustmentsHorizontalIcon,
+  TicketIcon,
+  BuildingStorefrontIcon,
+  UserGroupIcon,
+  ChevronDownIcon,
+  EllipsisHorizontalIcon
+} from "@heroicons/react/24/outline";
 
 type NavItem = {
   name: string;
@@ -25,19 +33,54 @@ const navItems: NavItem[] = [
     path: "/admin/dashboard",
   },
   {
-    icon: <TableCellsIcon className="w-6 h-6"/>,
+    icon: <ClipboardDocumentListIcon className="w-6 h-6" />,
+    name: "Orders",
+    path: "/admin/orders",
+  },
+  {
+    icon: <CubeIcon className="w-6 h-6" />,
     name: "Products",
     path: "/admin/products",
   },
+  // {
+  //   icon: <Bars3BottomLeftIcon className="w-6 h-6" />,
+  //   name: "Menus",
+  //   path: "/admin/menus",
+  // },
   {
-    icon: <TableCellsIcon className="w-6 h-6"/>,
+    icon: <TagIcon className="w-6 h-6" />,
     name: "Categories",
     path: "/admin/categories",
   },
   {
-    icon: <TableCellsIcon className="w-6 h-6"/>,
+    icon: <PhotoIcon className="w-6 h-6" />,
     name: "Sliders",
     path: "/admin/sliders",
+  },
+  {
+    icon: <SparklesIcon className="w-6 h-6" />,
+    name: "Toppings",
+    path: "/admin/toppings",
+  },
+  {
+    icon: <AdjustmentsHorizontalIcon className="w-6 h-6" />,
+    name: "Option",
+    path: "/admin/option_group",
+  },
+  {
+    icon: <TicketIcon className="w-6 h-6" />,
+    name: "Vouchers",
+    path: "/admin/vouchers",
+  },
+  {
+    icon: <BuildingStorefrontIcon className="w-6 h-6" />,
+    name: "Stores",
+    path: "/admin/stores",
+  },
+  {
+    icon: <UserGroupIcon className="w-6 h-6" />,
+    name: "Users",
+    path: "/admin/users",
   },
 ];
 
@@ -240,9 +283,9 @@ const AppSidebar: React.FC = () => {
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
         ${
           isExpanded || isMobileOpen
-            ? "w-[290px]"
+            ? "w-[200px]"
             : isHovered
-            ? "w-[290px]"
+            ? "w-[200px]"
             : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
@@ -255,7 +298,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-center"
         }`}
       >
-        <Link href="/">
+        <Link href="/admin/dashboard">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <Image
@@ -264,6 +307,8 @@ const AppSidebar: React.FC = () => {
                 alt="Logo"
                 width={120}
                 height={40}
+                style={{ width: "auto", height: "auto" }}
+                priority
               />
               <Image
                 className="hidden dark:block"
@@ -271,6 +316,8 @@ const AppSidebar: React.FC = () => {
                 alt="Logo"
                 width={120}
                 height={40}
+                style={{ width: "auto", height: "auto" }}
+                priority
               />
             </>
           ) : (
@@ -279,6 +326,7 @@ const AppSidebar: React.FC = () => {
               alt="Logo"
               width={60}
               height={32}
+              style={{ width: "auto", height: "auto" }}
             />
           )}
         </Link>

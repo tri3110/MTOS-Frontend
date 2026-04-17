@@ -21,3 +21,17 @@ export function getColor(name: string) {
 
   return `hsl(${h}, 70%, 50%)`;
 }
+
+export const formatDateTimeLocal = (dateStr: string) => {
+    const date = new Date(dateStr);
+
+    const pad = (n: number) => n.toString().padStart(2, "0");
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
+export const fetcherSWR = (url: string) =>
+  fetch(url, { credentials: "include" }).then((res) => {
+    if (!res.ok) throw new Error("Fetch error");
+    return res.json();
+  });

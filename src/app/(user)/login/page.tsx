@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/utils/store";
+import { syncCart } from "@/components/CartProvider";
 
 export default function LoginAdmin() {
   const { t } = useTranslation();
@@ -41,6 +42,8 @@ export default function LoginAdmin() {
     if (response.ok){
       const data = await response.json();
       setUser(data.data.user);
+
+      await syncCart();
 
       router.push("/");
     }
@@ -109,14 +112,30 @@ export default function LoginAdmin() {
               type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
             > {t("login")} </button>
           </form>
-          <div className="flex justify-between">
+          <div className="flex justify-between mt-2">
             <div className="mt-4 flex justify-between text-sm">
               <Link href="/forgot-password" className="text-blue-600 hover:underline">
                 {t("Forgot Password?")}
               </Link>
             </div>
-            <button onClick={() => {window.location.href = "http://localhost:8000/auth/login/google-oauth2/";}}>
-              Login with Google
+            <button
+              onClick={() => {
+                window.location.href =
+                  process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA +
+                  "/auth/login/google-oauth2/";
+              }}
+              className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-100 cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                className="w-5 h-5"
+              >
+                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.6 29.4 36 24 36c-6.6 0-12-5.4-12-12S17.4 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.9 6.1 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c10.4 0 19.2-7.6 19.2-20 0-1.3-.1-2.3-.4-3.5z"/>
+                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.9 6.1 29.2 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+                <path fill="#4CAF50" d="M24 44c5.3 0 10.1-2 13.7-5.2l-6.3-5.2C29.5 35.3 26.9 36 24 36c-5.3 0-9.8-3.4-11.3-8.1l-6.5 5C9.5 39.5 16.2 44 24 44z"/>
+                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.7-3 4.9-5.9 6.1l6.3 5.2C39.5 36.2 44 30.7 44 24c0-1.3-.1-2.3-.4-3.5z"/>
+              </svg>
             </button>
           </div>
         </div>

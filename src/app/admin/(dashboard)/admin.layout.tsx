@@ -13,7 +13,7 @@ export default function AdminLayout({children}: Readonly<{children: React.ReactN
   const mainContentMargin = isMobileOpen
     ? "ml-0"
     : isExpanded || isHovered
-    ? "lg:ml-[290px]"
+    ? "lg:ml-[200px]"
     : "lg:ml-[90px]";
   
   return (

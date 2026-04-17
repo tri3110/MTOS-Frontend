@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
-import CustomDropdownEditor from '@/components/admin/CustomDropdownEditor';
 
 import { 
     ColDef, 
@@ -25,7 +24,7 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import CategoryDialogAdd from './category.dailog';
+import CategoryDialogAdd from '../../../../components/dialog/category.dialog';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 

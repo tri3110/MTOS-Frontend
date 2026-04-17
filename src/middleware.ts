@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { useAuthStore } from "./utils/store";
 
 export const config = {
   matcher: ["/admin/:path*"],

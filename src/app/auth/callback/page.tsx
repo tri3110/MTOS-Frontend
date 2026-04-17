@@ -13,10 +13,10 @@ export default function Callback() {
         const refresh = searchParams.get("refresh");
 
         if (access && refresh) {
-        localStorage.setItem("access", access);
-        localStorage.setItem("refresh", refresh);
+            localStorage.setItem("access", access);
+            localStorage.setItem("refresh", refresh);
 
-        router.push("/");
+            router.push("/");
         }
     }, [searchParams]);
 

@@ -1,57 +1,59 @@
 'use client'
 
 import AppSlider from "@/components/user/user.slider";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { fetcherSWR} from "@/utils/common";
+import { useTheme } from "@/context/ThemeContext";
+import useSWR from "swr";
+import ProductPage from "@/components/common/ProductProvider";
 
 const themeStyle = {
-    Dark : {
-        text: "text-white"
-    },
-    Light: {
-        text: "text-gray-800"
-    }
+  Dark : {
+    text: "text-white"
+  },
+  Light: {
+    text: "text-gray-800"
+  }
 }
 
 export default function HomePage() {
   const { t } = useTranslation();
-  const [dataSliders, setDataSliders] = useState<SliderType[]>([]);
+  const { theme } = useTheme();
+  const { data: data, isLoading: loading } = useSWR(
+    process.env.NEXT_PUBLIC_HTTP_GUEST + "home/get/",
+    fetcherSWR
+  );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_HTTP_GUEST + "sliders/home/get/",
-          {
-              method: "GET",
-              credentials: "include",
-          }
-        )
-        const data = await response.json();
-        setDataSliders(data.data);
+  const dataSliders: SliderType[] = data?.sliders || [];
+  const dataTopProduct: ProductType[] = data?.products || [];
 
-      } catch (error) {
-        console.error("Failed to fetch schedule:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (!dataSliders || dataSliders.length === 0){
-    return (
-      <div>
-        Loading....
-      </div>
-    );
+  if (loading) {
+    return <div>{t("Loading...")}</div>;
   }
 
   return (
-    <>
-      <div className='bg-pink-50'>
-        <div className="px-4 max-w-screen-xl mx-auto bg-white">
-          <AppSlider sliders={dataSliders} themeStyle={themeStyle.Dark}/>
-        </div>
+    <div style={{background: theme["bg-home"]}}>
+      <div className= {`px-4 max-w-screen-xl mx-auto`}>
+        <AppSlider sliders={dataSliders} themeStyle={themeStyle.Dark}/>
+        <section className="px-1 pb-10 mt-10">
+          <h3 className="text-xl text-center font-semibold mb-4 text-pink-600">🔥 {t("Best Sellers")}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {dataTopProduct.map((p) => (
+              <div key={p.id}>
+                <ProductPage product={p}/>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* <section className="px-1 mb-10">
+          <img
+              src="combo-55k.png"
+              alt="Combo 2 ly 55k"
+              className="w-fullrounded-xl object-cover h-full"
+            />
+        </section> */}
       </div>
-    </>
+    </div>
   );
 }

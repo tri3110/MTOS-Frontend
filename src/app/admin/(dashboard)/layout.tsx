@@ -1,4 +1,5 @@
 import { Outfit } from 'next/font/google';
+import "flatpickr/dist/flatpickr.css";
 import './admin.css';
 import { SidebarProvider } from '@/context/sidebar.context';
 import { ThemeProvider } from '@/context/ThemeContext';

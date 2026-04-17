@@ -738,3 +738,35 @@ span.flatpickr-weekday,
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
 }
+
+.grid-border-r{
+  border-right: 1px solid #e5e7eb
+}
+
+.ag-theme-alpine .ag-header-cell-label {
+  justify-content: center !important;
+}
+
+.ag-theme-alpine .ag-header-cell {
+  border-right: 1px solid #e5e7eb;
+}
+
+.ag-theme-alpine .ag-header-cell[col-id="action"] {
+  border-right: none !important;
+}
+
+.ag-theme-alpine .ag-pinned-right-header{
+  border-left: none !important;
+}
+
+.ag-cell.ag-cell-first-right-pinned:not(.ag-cell-range-left,.ag-cell-range-single-cell,.ag-cell-focus:not(.ag-cell-range-selected):focus-within) {
+  border-left: none !important;
+}
+
+.ag-floating-filter-button {
+  display: none !important;
+}
+
+.ag-header-cell{
+  padding: 3px !important;
+}

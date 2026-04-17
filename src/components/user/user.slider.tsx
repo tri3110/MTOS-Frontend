@@ -73,7 +73,7 @@ export default function AppSlider(props: Props) {
                             <img
                                 src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (slider.image ?? "")}
                                 alt={slider.title}
-                                className="w-full h-72 object-cover cursor-pointer"
+                                className="w-full h-72 object-contain cursor-pointer"
                                 onClick={()=>router.push("/detail/" + slider.id)}
                             />
                             {/* <div className={`w-full absolute px-2 top-1 left-1 bg-blue-700 text-xl truncate py-2 text-sm font-medium 

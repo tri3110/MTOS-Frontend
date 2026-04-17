@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
-import CustomDropdownEditor from '@/components/admin/CustomDropdownEditor';
 import Image from "next/image";
 
 import { 
@@ -26,7 +25,9 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import SliderDialogAdd from './slider.dailog';
+import SliderDialogAdd from '../../../../components/dialog/slider.dialog';
+import useSWR from 'swr';
+import { fetcherSWR } from '@/utils/common';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -100,12 +101,12 @@ export default function Sliders() {
                 return (
                     <div className="flex items-center h-full">
                         <Image
-                            className="dark:hidden"
+                            className="dark:hidden h-full"
                             src={imageUrl}
                             alt="Logo"
                             width={100}
                             height={100}
-                            style={{ objectFit: "cover", width: "100px", height: "auto" }}
+                            style={{ objectFit: "contain"}}
                             unoptimized // để Next.js bỏ qua việc xử lý ảnh qua proxy vì dùng localhost
                         />
                     </div>
@@ -149,25 +150,17 @@ export default function Sliders() {
         },
     ], [dataSliders]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(
-                    process.env.NEXT_PUBLIC_HTTP_ADMIN + "sliders/get/",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                )
-                const data = await response.json();
-                setDataSliders(data.data);
 
-            } catch (error) {
-                console.error("Failed to fetch schedule:", error);
-            }
-        };
-        fetchData();
-    }, []);
+    const { data} = useSWR(
+        process.env.NEXT_PUBLIC_HTTP_ADMIN + "sliders/get/",
+        fetcherSWR
+    );
+
+    useEffect(() => {
+        if (data) {
+            setDataSliders(data.data);
+        }
+    }, [data]);
 
     useEffect(() => {
         const interval = setInterval(() => {

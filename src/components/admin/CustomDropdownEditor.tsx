@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useState } from "react";
 import Select, { SingleValue } from 'react-select';
 
 const CustomDropdownEditor = forwardRef((props: any, ref: any) => {

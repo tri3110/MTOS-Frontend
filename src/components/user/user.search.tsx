@@ -14,9 +14,15 @@ export default function AppSearch({ headerHeight}: SearchProps){
     const [isOpen, setIsOpen] = useState(false);
     const [valueSearch, setValueSearch] = useState("");
     const [debouncedValue, setDebouncedValue] = useState("");
-
     const [results, setResults] = useState<ProductType[]>([]);
     const [loading, setLoading] = useState(false);
+    const [right, setRight] = useState(0);
+
+    const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setRight(window.innerWidth - rect.right - 60);
+        setIsOpen(!isOpen);
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -67,16 +73,16 @@ export default function AppSearch({ headerHeight}: SearchProps){
     }, [debouncedValue]);
 
     return (
-        <div className="riva hidden md:flex items-center overflow-hidden">
+        <div className="hidden md:flex items-center overflow-hidden">
             
-            <button className="px-3 py-1 text-gray-600 text-sm" onClick={()=>setIsOpen(!isOpen)}>
+            <button className="px-1 py-1 text-gray-600 text-sm" onClick={handleOpen}>
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-600 hover:text-gray-800" />
             </button>
             {
                 isOpen && 
                 <div onClick={handleBackdropClick} style={{ top: headerHeight }} className="fixed inset-0 z-40 flex items-center 
-                    justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="absolute top-1 right-4 w-full max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    justify-center bg-black/50 backdrop-blur-sm ">
+                    <div style={{right: right}} className="absolute top-1 w-full max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                         <div className="p-3 border-b border-gray-200">
                             <div className="relative flex items-center aspect-w-16 aspect-h-9 border border-gray-200 rounded-lg">
                                 <MagnifyingGlassIcon className="absolute left-1 h-6 w-6 text-gray-600 hover:text-gray-800" />

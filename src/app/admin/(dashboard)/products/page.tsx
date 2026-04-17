@@ -25,8 +25,10 @@ import {
     SelectEditorModule,
     RowApiModule,
 } from 'ag-grid-community';
-import ProductDialogAdd from './product.dailog';
+import ProductDialogAdd from '../../../../components/dialog/product.dialog';
 import ActionButtons from '@/components/common/ActionButtons';
+import useSWR from 'swr';
+import { fetcherSWR } from '@/utils/common';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -51,6 +53,8 @@ export default function Products() {
     const [dataProducts, setDataProducts] = useState<ProductType[]>([]);
     const [dataCategories, setDataCategories] = useState<CategoryType[]>([]);
     const [optionCategories, setOptionCategories] = useState<OptionType[]>([]);
+    const [dataOptionGroup, setDataOptionGroup] = useState<OptionGroupType[]>([]);
+    const [dataTopping, setDataTopping] = useState<ToppingType[]>([]);
     const gridRef = useRef<AgGridReact<any>>(null);
 
     const gridOptions: GridOptions = {
@@ -113,12 +117,12 @@ export default function Products() {
                 return (
                     <div className="flex items-center h-full">
                         <Image
-                            className="dark:hidden"
+                            className="dark:hidden h-full"
                             src={imageUrl}
                             alt="Logo"
                             width={100}
                             height={100}
-                            style={{ objectFit: "cover", width: "100px", height: "auto" }}
+                            style={{ objectFit: "contain"}}
                             unoptimized // để Next.js bỏ qua việc xử lý ảnh qua proxy vì dùng localhost
                         />
                     </div>
@@ -193,31 +197,24 @@ export default function Products() {
         },
     ], [dataCategories]);
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await fetch(
-                    process.env.NEXT_PUBLIC_HTTP_ADMIN + "products/get/",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                )
-                const data = await response.json();
-                setDataProducts(data.products);
-                setDataCategories(data.categories);
-                const options: OptionType[] = data.categories.map((category: any) => ({
-                    label: category.name,
-                    value: category.id,
-                }));
-                setOptionCategories(options);
+    const { data} = useSWR(
+        process.env.NEXT_PUBLIC_HTTP_ADMIN + "products/get/",
+        fetcherSWR
+    );
 
-            } catch (error) {
-                console.error("Failed to fetch schedule:", error);
-            }
-        };
-        fetchProducts();
-    }, []);
+    useEffect(() => {
+        if (data) {
+            setDataProducts(data.products);
+            setDataCategories(data.categories);
+            setDataOptionGroup(data.options);
+            setDataTopping(data.toppings);
+            const options: OptionType[] = data.categories.map((category: any) => ({
+                label: category.name,
+                value: category.id,
+            }));
+            setOptionCategories(options);
+        }
+    }, [data]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -273,6 +270,8 @@ export default function Products() {
                     prev.map(product => product.id === updatedProduct.id ? updatedProduct : product)
                 );
             }}
+            dataTopping={dataTopping}
+            dataOptionGroup={dataOptionGroup}
         />
         </div>
     );

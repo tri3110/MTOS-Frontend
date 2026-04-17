@@ -1,42 +1,39 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import Select, { SingleValue } from 'react-select';
 import { formatNumber } from "@/utils/common";
-import { productSchema } from "@/components/admin/admin.validate";
 import { toast } from "react-toastify";
+import { sliderSchema } from "@/components/admin/admin.validate";
 
 interface Props {
   isOpen: boolean;
   setIsOpen: (value:boolean) => void ;
-  optionCategories: OptionType[];
-  onAddSuccess: (newProduct: ProductType) => void;
-  dataEdit: ProductType|null;
-  setDataEdit: (data: ProductType|null) => void;
-  onUpdateSuccess: (updatedScreen: ProductType) => void;
+  onAddSuccess: (newSlider: SliderType) => void;
+  dataEdit: SliderType|null;
+  setDataEdit: (data: SliderType|null) => void;
+  onUpdateSuccess: (updatedSlider: SliderType) => void;
 }
 
-interface ProductTypeAdd {
-  name: string;
-  image: string|null;
-  price: number;
-  category_id: number;
-  priceDisplay: string;
+interface SliderTypeAdd {
+  title: string;
+  image: string | null;
+  link: string;
+  order: number;
 }
 
-export default function ProductDialogAdd(props: Props) {
-    const {isOpen, setIsOpen, optionCategories, onAddSuccess, dataEdit, setDataEdit, onUpdateSuccess} = props
-    const [form, setForm] = useState<ProductTypeAdd>({
-        name: '',
+export default function SliderDialogAdd(props: Props) {
+    const {isOpen, setIsOpen, onAddSuccess, dataEdit, setDataEdit, onUpdateSuccess} = props
+    const [form, setForm] = useState<SliderTypeAdd>({
+        title: '',
         image: '',
-        price: 0,
-        category_id: 0,
-        priceDisplay: ''
+        link: '',
+        order: 0,
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -50,11 +47,10 @@ export default function ProductDialogAdd(props: Props) {
 
         if (dataEdit) {
             setForm({
-                name: dataEdit.name,
+                title: dataEdit.title,
                 image: dataEdit.image,
-                price: dataEdit.price,
-                category_id: dataEdit.category.id,
-                priceDisplay: formatNumber(String(dataEdit.price))
+                link: dataEdit.link,
+                order: dataEdit.order,
             });
             setPreviewUrl(`${process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA}` + dataEdit.image)
         }
@@ -63,20 +59,17 @@ export default function ProductDialogAdd(props: Props) {
     const handleCloseDialog = () => {
         setIsOpen(false);
         setDataEdit(null);
-        setSelectedFile(null);
-        setPreviewUrl(null);
 
         setForm({
-            name: '',
-            image:'',
-            price: 0,
-            category_id: 0,
-            priceDisplay: '',
+            title: '',
+            image: '',
+            link: '',
+            order: 0,
         });
     }
 
     const handleSubmit = async () => {
-        const validate = productSchema.safeParse(form);
+        const validate = sliderSchema.safeParse(form);
 
         if (!validate.success) {
             const messages = validate.error.issues[0]?.message;
@@ -84,17 +77,17 @@ export default function ProductDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `products/create/`;
+        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `sliders/create/`;
         let method = "POST";
         if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `products/update/${dataEdit.id}/`;
+            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `sliders/update/${dataEdit.id}/`;
             method = "PUT";
         }
-        
+
         const formData = new FormData();
-        formData.append("name", form.name);
-        formData.append("price", String(form.price));
-        formData.append("category_id", String(form.category_id));
+        formData.append("title", form.title);
+        formData.append("link", String(form.link));
+        formData.append("order", String(form.order));
         if (selectedFile) {
             formData.append("image", selectedFile);
         }
@@ -102,9 +95,6 @@ export default function ProductDialogAdd(props: Props) {
         const response = await fetch(url, {
             method: method,
             credentials: "include",
-            // headers: {
-            //     "Content-Type": "application/json",
-            // },
             body: formData,
         });
 
@@ -112,9 +102,9 @@ export default function ProductDialogAdd(props: Props) {
         if (response.ok){
             toast.success(result.message);
             if (dataEdit) 
-                onUpdateSuccess(result.product);
+                onUpdateSuccess(result.slider);
             else 
-                onAddSuccess(result.product);
+                onAddSuccess(result.slider);
 
             handleCloseDialog();
         }
@@ -147,7 +137,7 @@ export default function ProductDialogAdd(props: Props) {
             <div className="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                 <div className="relative items-center p-2 md:p-3 border-b rounded-t dark:border-gray-600 border-gray-200">
                     <h3 className="text-xl w-full text-center font-semibold text-pink-600 dark:text-white">
-                        {dataEdit? "UPDATE PRODUCT":"ADD PRODUCT"}
+                        {dataEdit? "UPDATE SLIDER":"ADD SLIDER"}
                     </h3>
                     <button onClick={() => handleCloseDialog()} type="button" 
                         className="absolute top-1 right-1 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="default-modal">
@@ -161,55 +151,51 @@ export default function ProductDialogAdd(props: Props) {
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-12">
                             <div className="space-y-4">
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
+                                    <label className="block text-sm font-medium col-span-2">Title <span className="text-red-500">(*)</span></label>
                                     <input
                                         type="text"
-                                        name="name"
+                                        name="title"
                                         autoFocus
-                                        value={form.name}
+                                        value={form.title}
                                         onChange={handleChange}
                                         className="mt-1 w-full border px-3 py-2 rounded col-span-6"
                                     />
                                 </div>
+                                {
+                                    dataEdit && 
+                                    <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
+                                        <label className="block text-sm font-medium col-span-2">
+                                            Order <span className="text-red-500">(*)</span>
+                                        </label>
+                                        <div className="relative col-span-6">
+                                            <input
+                                            type="text"
+                                            name="order"
+                                            value={form.order}
+                                            onChange={handleChange}
+                                            className="w-full border px-3 py-2 pr-14 rounded"
+                                            />
+                                        </div>
+                                    </div>
+                                }
+                                
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
                                     <label className="block text-sm font-medium col-span-2">
-                                        Price <span className="text-red-500">(*)</span>
+                                        Link
                                     </label>
                                     <div className="relative col-span-6">
                                         <input
                                         type="text"
-                                        name="price"
-                                        value={form.priceDisplay}
+                                        name="link"
+                                        value={form.link}
                                         onChange={handleChange}
-                                        placeholder="0.00"
                                         className="w-full border px-3 py-2 pr-14 rounded"
                                         />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">VNĐ</span>
                                     </div>
-                                </div>
-                                <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Category <span className="text-red-500">(*)</span></label>
-                                    <Select
-                                        options={optionCategories}
-                                        value={optionCategories.find(opt => opt.value === form.category_id) || null}
-                                        onChange={(selected) => {
-                                            const value = (selected as { value: number })?.value;
-                                            setForm(prev => ({ ...prev, category_id: value }));
-                                        }}
-                                        menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                        styles={{
-                                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                                            menu: (base) => ({
-                                                ...base,
-                                                fontSize: '13px',
-                                            }),
-                                        }}
-                                        className="col-span-6"
-                                    />
                                 </div>
                                 <div className="space-y-2 col-span-8">
                                     <label className="block text-sm font-medium">
-                                        Product Image
+                                        Slider Image
                                     </label>
                                     
                                     <div 
@@ -221,7 +207,7 @@ export default function ProductDialogAdd(props: Props) {
                                                 <img 
                                                     src={previewUrl} 
                                                     alt="Preview" 
-                                                    className="w-full h-full object-cover" 
+                                                    className="w-full h-full object-contain" 
                                                 />
                                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <span className="text-white text-sm">Change Image</span>

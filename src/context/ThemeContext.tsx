@@ -1,13 +1,14 @@
 "use client";
 
-import type React from "react";
-import { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
+type ThemeMode = "light" | "dark";
+type ThemeConfig = Record<string, string>;
 
 type ThemeContextType = {
-  theme: Theme;
-  toggleTheme: () => void;
+  mode: ThemeMode;
+  toggleMode: () => void;
+  theme: ThemeConfig;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -15,35 +16,74 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [mode, setMode] = useState<ThemeMode>("light");
+  const [theme, setTheme] = useState<ThemeConfig>({});
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // ✅ Load dark/light mode
   useEffect(() => {
-    // This code will only run on the client side
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const initialTheme = savedTheme || "light"; // Default to light theme
+    const savedMode = localStorage.getItem("themeMode") as ThemeMode | null;
+    const initialMode = savedMode || "light";
 
-    setTheme(initialTheme);
+    setMode(initialMode);
     setIsInitialized(true);
   }, []);
 
+  // ✅ Apply dark/light class
   useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem("theme", theme);
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    }
-  }, [theme, isInitialized]);
+    if (!isInitialized) return;
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    localStorage.setItem("themeMode", mode);
+
+    if (mode === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [mode, isInitialized]);
+
+  // ✅ Load theme config từ API
+  useEffect(() => {
+    const loadTheme = async () => {
+      try {
+        const cached = localStorage.getItem("themeData");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          setTheme(parsed);
+          applyTheme(parsed);
+        }
+
+        const res = await fetch(
+          process.env.NEXT_PUBLIC_HTTP_AUTH + "themes/"
+        );
+        const data = await res.json();
+
+        setTheme(data);
+        localStorage.setItem("themeData", JSON.stringify(data));
+        applyTheme(data);
+      } catch (err) {
+        console.error("Load theme failed:", err);
+      }
+    };
+
+    loadTheme();
+  }, []);
+
+  // ✅ Apply CSS variables
+  const applyTheme = (config: ThemeConfig) => {
+    const root = document.documentElement;
+
+    Object.entries(config).forEach(([key, value]) => {
+      root.style.setProperty(`--${key}`, value);
+    });
+  };
+
+  const toggleMode = () => {
+    setMode((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode, toggleMode, theme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -51,8 +91,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+  if (!context) {
+    throw new Error("useTheme must be used within ThemeProvider");
   }
   return context;
 };

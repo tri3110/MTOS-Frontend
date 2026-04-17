@@ -45,5 +45,13 @@
   "TIME": "TIME",
   "DAY": "DAY",
   "Location": "Location",
-  "Menu": "Menu"
+  "Menu": "Menu",
+  "Add To Cart": "Add To Cart",
+  "Best Sellers": "Best Sellers",
+  "All": "All",
+  "Categories": "Categories",
+  "Login required": "Login required",
+  "Please log in to continue with your payment.": "Please log in to continue with your payment.",
+  "Cancel": "Cancel",
+  "Go to Login": "Go to Login"
 }

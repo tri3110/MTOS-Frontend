@@ -83,20 +83,24 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link href="/" className="lg:hidden">
+          <Link href="/admin/dashboard" className="lg:hidden">
             <Image
-              width={154}
+              width={100}
               height={32}
               className="dark:hidden"
-              src="./images/logo/logo.svg"
+              src="/logo.png"
               alt="Logo"
+              style={{ width: "auto", height: "auto" }}
+              priority
             />
             <Image
-              width={154}
+              width={100}
               height={32}
               className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
+              src="/logo.png"
               alt="Logo"
+              style={{ width: "auto", height: "auto" }}
+              priority
             />
           </Link>
 
@@ -120,7 +124,7 @@ const AppHeader: React.FC = () => {
             </svg>
           </button>
 
-          <div className="hidden lg:block">
+          {/* <div className="hidden lg:block">
             <form>
               <div className="relative">
                 <span className="absolute -translate-y-1/2 left-4 top-1/2 pointer-events-none">
@@ -153,7 +157,7 @@ const AppHeader: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </div> */}
         </div>
         <div
           className={`${

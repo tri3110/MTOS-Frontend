@@ -3,31 +3,31 @@
 import { useEffect, useRef, useState } from "react";
 import { formatNumber } from "@/utils/common";
 import { toast } from "react-toastify";
-import { sliderSchema } from "@/components/admin/admin.validate";
+import { toppingSchema } from "@/components/admin/admin.validate";
 
 interface Props {
   isOpen: boolean;
   setIsOpen: (value:boolean) => void ;
-  onAddSuccess: (newSlider: SliderType) => void;
-  dataEdit: SliderType|null;
-  setDataEdit: (data: SliderType|null) => void;
-  onUpdateSuccess: (updatedSlider: SliderType) => void;
+  onAddSuccess: (newItem: ToppingType) => void;
+  dataEdit: ToppingType | null;
+  setDataEdit: (data: ToppingType | null) => void;
+  onUpdateSuccess: (updatedItem: ToppingType) => void;
 }
 
-interface SliderTypeAdd {
-  title: string;
+interface TypeAdd {
+  name: string;
   image: string | null;
-  link: string;
-  order: number;
+  price: number;
+  priceDisplay: string;
 }
 
-export default function SliderDialogAdd(props: Props) {
+export default function ToppingDialogAdd(props: Props) {
     const {isOpen, setIsOpen, onAddSuccess, dataEdit, setDataEdit, onUpdateSuccess} = props
-    const [form, setForm] = useState<SliderTypeAdd>({
-        title: '',
+    const [form, setForm] = useState<TypeAdd>({
+        name: '',
         image: '',
-        link: '',
-        order: 0,
+        price: 0,
+        priceDisplay: '',
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -47,10 +47,10 @@ export default function SliderDialogAdd(props: Props) {
 
         if (dataEdit) {
             setForm({
-                title: dataEdit.title,
+                name: dataEdit.name,
                 image: dataEdit.image,
-                link: dataEdit.link,
-                order: dataEdit.order,
+                price: dataEdit.price,
+                priceDisplay: formatNumber(String(dataEdit.price))
             });
             setPreviewUrl(`${process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA}` + dataEdit.image)
         }
@@ -61,15 +61,15 @@ export default function SliderDialogAdd(props: Props) {
         setDataEdit(null);
 
         setForm({
-            title: '',
+            name: '',
             image: '',
-            link: '',
-            order: 0,
+            price: 0,
+            priceDisplay: '',
         });
     }
 
     const handleSubmit = async () => {
-        const validate = sliderSchema.safeParse(form);
+        const validate = toppingSchema.safeParse(form);
 
         if (!validate.success) {
             const messages = validate.error.issues[0]?.message;
@@ -77,17 +77,16 @@ export default function SliderDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `sliders/create/`;
+        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `toppings/create/`;
         let method = "POST";
         if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `sliders/update/${dataEdit.id}/`;
+            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `toppings/update/${dataEdit.id}/`;
             method = "PUT";
         }
 
         const formData = new FormData();
-        formData.append("title", form.title);
-        formData.append("link", String(form.link));
-        formData.append("order", String(form.order));
+        formData.append("name", form.name);
+        formData.append("price", String(form.price));
         if (selectedFile) {
             formData.append("image", selectedFile);
         }
@@ -102,9 +101,9 @@ export default function SliderDialogAdd(props: Props) {
         if (response.ok){
             toast.success(result.message);
             if (dataEdit) 
-                onUpdateSuccess(result.slider);
+                onUpdateSuccess(result.topping);
             else 
-                onAddSuccess(result.slider);
+                onAddSuccess(result.topping);
 
             handleCloseDialog();
         }
@@ -137,7 +136,7 @@ export default function SliderDialogAdd(props: Props) {
             <div className="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                 <div className="relative items-center p-2 md:p-3 border-b rounded-t dark:border-gray-600 border-gray-200">
                     <h3 className="text-xl w-full text-center font-semibold text-pink-600 dark:text-white">
-                        {dataEdit? "UPDATE SLIDER":"ADD SLIDER"}
+                        {dataEdit? "UPDATE TOPPING":"ADD TOPPING"}
                     </h3>
                     <button onClick={() => handleCloseDialog()} type="button" 
                         className="absolute top-1 right-1 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="default-modal">
@@ -151,51 +150,36 @@ export default function SliderDialogAdd(props: Props) {
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-12">
                             <div className="space-y-4">
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Title <span className="text-red-500">(*)</span></label>
+                                    <label className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
                                     <input
                                         type="text"
-                                        name="title"
+                                        name="name"
                                         autoFocus
-                                        value={form.title}
+                                        value={form.name}
                                         onChange={handleChange}
                                         className="mt-1 w-full border px-3 py-2 rounded col-span-6"
                                     />
                                 </div>
-                                {
-                                    dataEdit && 
-                                    <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                        <label className="block text-sm font-medium col-span-2">
-                                            Order <span className="text-red-500">(*)</span>
-                                        </label>
-                                        <div className="relative col-span-6">
-                                            <input
-                                            type="text"
-                                            name="order"
-                                            value={form.order}
-                                            onChange={handleChange}
-                                            className="w-full border px-3 py-2 pr-14 rounded"
-                                            />
-                                        </div>
-                                    </div>
-                                }
                                 
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
                                     <label className="block text-sm font-medium col-span-2">
-                                        Link
+                                        Price <span className="text-red-500">(*)</span>
                                     </label>
                                     <div className="relative col-span-6">
                                         <input
                                         type="text"
-                                        name="link"
-                                        value={form.link}
+                                        name="price"
+                                        value={form.priceDisplay}
                                         onChange={handleChange}
-                                        className="w-full border px-3 py-2 pr-14 rounded"
+                                        placeholder="0.00"
+                                        className="w-full border px-3 py-1 pr-14 rounded"
                                         />
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">VNĐ</span>
                                     </div>
                                 </div>
                                 <div className="space-y-2 col-span-8">
                                     <label className="block text-sm font-medium">
-                                        Slider Image
+                                        Image
                                     </label>
                                     
                                     <div 
@@ -207,7 +191,7 @@ export default function SliderDialogAdd(props: Props) {
                                                 <img 
                                                     src={previewUrl} 
                                                     alt="Preview" 
-                                                    className="w-full h-full object-cover" 
+                                                    className="w-full h-full object-contain" 
                                                 />
                                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <span className="text-white text-sm">Change Image</span>
