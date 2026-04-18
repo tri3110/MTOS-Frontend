@@ -6,8 +6,9 @@ import { ApexOptions } from "apexcharts";
 import flatpickr from "flatpickr";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import useSWR from "swr";
-import { fetcherSWR } from "@/utils/common";
-import { formatNumber } from "@/utils/common";
+import { fetcherSWR } from "@/lib/helpers";
+import { formatNumber } from "@/lib/helpers";
+import { API_BASE_URLS } from "@/lib/constants";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -18,7 +19,7 @@ type Props = {
 export default function RevenueOverview({ dataParent }: Props) {
     const datePickerRef = useRef<HTMLInputElement>(null);
     const [url, setUrl] = useState(
-        process.env.NEXT_PUBLIC_HTTP_ADMIN + "dashboard/"
+        API_BASE_URLS.ADMIN + "dashboard/"
     );
 
     const { data, isLoading } = useSWR(url, fetcherSWR);
@@ -40,7 +41,7 @@ export default function RevenueOverview({ dataParent }: Props) {
                     const from = selectedDates[0].toISOString().slice(0, 10);
                     const to = selectedDates[1].toISOString().slice(0, 10);
                     setUrl(
-                        `${process.env.NEXT_PUBLIC_HTTP_ADMIN}dashboard/?from=${from}&to=${to}`
+                        `${API_BASE_URLS.ADMIN}dashboard/?from=${from}&to=${to}`
                     );
                 }
             },

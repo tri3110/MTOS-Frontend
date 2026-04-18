@@ -8,12 +8,13 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore, useCartStore} from '@/utils/store';
 import Image from "next/image";
 import { LanguageDropdown } from './user.language';
+import { API_BASE_URLS } from "@/lib/constants";
+import { AuthService, ProductService } from "@/services";
 import { AvatarUser } from '@/app/auth/callback/page';
 import AppSearch from './user.search';
 import { ShoppingCart, UserCircleIcon } from 'lucide-react';
 import useSWR from 'swr';
-import { fetcherSWR } from '@/utils/common';
-import { useTheme } from '@/context/ThemeContext';
+import { fetcherSWR } from '@/lib/helpers';
 
 type NavItem = {
     href: string;
@@ -49,7 +50,7 @@ const Header = () => {
     ]);
 
     const { data} = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_GUEST + "home/categories/get/",
+        API_BASE_URLS.GUEST + "home/categories/get/",
         fetcherSWR
     );
 
@@ -72,17 +73,15 @@ const Header = () => {
     }, [data]);
 
     const handleLogout = async () =>{
-        const response = await fetch(process.env.NEXT_PUBLIC_HTTP_AUTH + `logout/`, {
-            method: "POST",
-            credentials: "include"
-        })
-
-        if (response.ok) {
+        try {
+            await AuthService.logout();
             setMenuOpen(false)
             clearUser();
             clear()
             localStorage.removeItem("justLoggedIn")
             router.push("/");
+        } catch (error) {
+            console.error("Logout failed:", error);
         }
     }
     

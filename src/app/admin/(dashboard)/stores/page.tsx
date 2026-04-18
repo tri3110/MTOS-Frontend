@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
+import { API_BASE_URLS } from '@/lib/constants';
+import { StoreService } from '@/services';
 
 import { 
     ColDef, 
@@ -24,9 +25,9 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import StoreDialogAdd from '../../../../components/dialog/store.dialog';
+import StoreDialogAdd from '../../../../components/dialog/admin/store.dialog';
 import useSWR from 'swr';
-import { fetcherSWR } from '@/utils/common';
+import { fetcherSWR } from '@/lib/helpers';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -113,7 +114,7 @@ export default function StorePage() {
                                 return prev.filter(s => s.id !== id);
                             });
                         }}
-                        deleteUrl={(id) => `${process.env.NEXT_PUBLIC_HTTP_ADMIN}stores/delete/${id}/`}
+                        deleteUrl={(id) => `${API_BASE_URLS.ADMIN}stores/delete/${id}/`}
                     />
                 )
             },
@@ -123,7 +124,7 @@ export default function StorePage() {
     ], [dataObject]);
 
     const { data} = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_ADMIN + "stores/get/",
+        API_BASE_URLS.ADMIN + "stores/get/",
         fetcherSWR
     );
 
@@ -157,7 +158,7 @@ export default function StorePage() {
     }, []);
 
     return (
-        <div className={`ag-theme-alpine ${styles.gridWrapper}`} style={{ height: "calc(100vh - 150px)" }}>
+        <div className="ag-theme-alpine gridWrapper" style={{ height: "calc(100vh - 150px)" }}>
         <AgGridReact
             ref={gridRef}
             rowData={dataObject}

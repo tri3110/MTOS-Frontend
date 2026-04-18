@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { storeSchema } from "@/components/admin/admin.validate";
+import { storeSchema } from "@/lib/validations";
+import { StoreService } from "@/services/admin.service";
 
 interface Props {
   isOpen: boolean;
@@ -53,38 +54,16 @@ export default function StoreDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `stores/create/`;
-        let method = "POST";
-        if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `stores/update/${dataEdit.id}/`;
-            method = "PUT";
-        }
+        const result = await StoreService.createStore(form, dataEdit?.id || 0);
         
-        const response = await fetch(url, {
-            method: method,
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: form.name,
-                address: form.address,
-                phone: form.phone
-            }),
-        });
-
-        const result = await response.json();
-        if (response.ok){
+        if (result.store){
             toast.success(result.message);
             if (dataEdit) 
-                onUpdateSuccess(result.data);
+                onUpdateSuccess(result.store);
             else 
-                onAddSuccess(result.data);
+                onAddSuccess(result.store);
 
             handleCloseDialog();
-        }
-        else{
-            toast.error(result.type[0]);
         }
     };
 

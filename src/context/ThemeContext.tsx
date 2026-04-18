@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { API_BASE_URLS } from "@/lib/constants";
+import { AuthService } from "@/services";
 
 type ThemeMode = "light" | "dark";
 type ThemeConfig = Record<string, string>;
@@ -53,14 +55,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
           applyTheme(parsed);
         }
 
-        const res = await fetch(
-          process.env.NEXT_PUBLIC_HTTP_AUTH + "themes/"
-        );
-        const data = await res.json();
+        const data = await AuthService.getThemes();
 
-        setTheme(data);
+        setTheme(data as ThemeConfig);
         localStorage.setItem("themeData", JSON.stringify(data));
-        applyTheme(data);
+        applyTheme(data as ThemeConfig);
       } catch (err) {
         console.error("Load theme failed:", err);
       }

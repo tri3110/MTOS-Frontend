@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/utils/store";
 import { toast } from "react-toastify";
+import { AuthService } from "@/services/auth.service";
 
 export default function LoginAdmin() {
   const { t } = useTranslation();
@@ -27,22 +28,14 @@ export default function LoginAdmin() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch(process.env.NEXT_PUBLIC_HTTP_AUTH + `login/`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            username_or_email: formData.email,
-            password: formData.password,
-        }),
+    
+    const response = await AuthService.login({
+      email: formData.email,
+      password: formData.password
     });
 
-    if (response.ok){
-      const data = await response.json();
-      setUser(data.data.user);
-
+    if (response?.user){
+      setUser(response.user);
       router.push("/admin/dashboard");
     }
     else{

@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
 import Image from "next/image";
+import { API_BASE_URLS } from '@/lib/constants';
+import { ToppingService } from '@/services';
 
 import { 
     ColDef, 
@@ -25,8 +26,8 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import ToppingDialogAdd from '../../../../components/dialog/topping.dialog';
-import { fetcherSWR } from '@/utils/common';
+import ToppingDialogAdd from '../../../../components/dialog/admin/topping.dialog';
+import { fetcherSWR } from '@/lib/helpers';
 import useSWR from 'swr';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
@@ -96,7 +97,7 @@ export default function Toppings() {
 
                 const imageUrl = params.value.startsWith("http")
                     ? params.value
-                    : `${process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA}${params.value}`;
+                    : `${API_BASE_URLS.ADMIN_MEDIA}${params.value}`;
 
                 return (
                     <div className="flex items-center h-full">
@@ -134,7 +135,7 @@ export default function Toppings() {
                                 return prev.filter(s => s.id !== id);
                             });
                         }}
-                        deleteUrl={(id) => `${process.env.NEXT_PUBLIC_HTTP_ADMIN}toppings/delete/${id}/`}
+                        deleteUrl={(id) => `${API_BASE_URLS.ADMIN}toppings/delete/${id}/`}
                     />
                 )
             },
@@ -144,7 +145,7 @@ export default function Toppings() {
     ], [dataObject]);
 
     const { data} = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_ADMIN + "toppings/get/",
+        API_BASE_URLS.ADMIN + "toppings/get/",
         fetcherSWR
     );
 
@@ -178,7 +179,7 @@ export default function Toppings() {
     }, []);
 
     return (
-        <div className={`ag-theme-alpine ${styles.gridWrapper}`} style={{ height: "calc(100vh - 150px)" }}>
+        <div className="ag-theme-alpine gridWrapper" style={{ height: "calc(100vh - 150px)" }}>
         <AgGridReact
             ref={gridRef}
             rowData={dataObject}

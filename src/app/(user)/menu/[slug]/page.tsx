@@ -1,10 +1,11 @@
 'use client'
 
 import { use, useEffect, useState } from "react";
-import { fetcherSWR} from "@/utils/common";
+import { fetcherSWR} from "@/lib/helpers";
 import { useTheme } from "@/context/ThemeContext";
 import useSWR from "swr";
 import ProductsPage from "../product.provider";
+import { API_BASE_URLS } from "@/lib/constants";
 
 export default function MenuPage({ params }: { params: Promise<{ slug: string }> }) { 
     const { slug } = use(params);
@@ -13,7 +14,7 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
     const [dataCategories, setDataCategories] = useState<CategoryType[]>([]);
 
     const { data, isLoading } = useSWR(
-        `${process.env.NEXT_PUBLIC_HTTP_GUEST}products/menu/${slug}`,
+        `${API_BASE_URLS.GUEST}products/menu/${slug}`,
         fetcherSWR
     );
 

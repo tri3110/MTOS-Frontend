@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Select from 'react-select';
-import { formatNumber } from "@/utils/common";
-import { productSchema } from "@/components/admin/admin.validate";
+import { formatNumber } from "@/lib/helpers";
 import { toast } from "react-toastify";
+import { AdminProductService } from "@/services/admin.service";
+import { API_BASE_URLS } from "@/lib/constants";
+import { productSchema } from "@/lib/validations";
 
 interface Props {
   isOpen: boolean;
@@ -63,7 +65,7 @@ export default function ProductDialogAdd(props: Props) {
                 category_id: dataEdit.category.id,
                 priceDisplay: formatNumber(String(dataEdit.price))
             });
-            setPreviewUrl(`${process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA}` + dataEdit.image)
+            setPreviewUrl(`${API_BASE_URLS.ADMIN_MEDIA}${dataEdit.image}`)
             
             if (dataEdit.option_groups.length > 0){
                 const ids = dataEdit.option_groups.flatMap((group:any) => group.options.map((option:any) => option.id));
@@ -101,13 +103,6 @@ export default function ProductDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `products/create/`;
-        let method = "POST";
-        if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `products/update/${dataEdit.id}/`;
-            method = "PUT";
-        }
-        
         const formData = new FormData();
         formData.append("name", form.name);
         formData.append("price", String(form.price));
@@ -118,14 +113,9 @@ export default function ProductDialogAdd(props: Props) {
             formData.append("image", selectedFile);
         }
 
-        const response = await fetch(url, {
-            method: method,
-            credentials: "include",
-            body: formData,
-        });
+        const result = await AdminProductService.createProduct(formData, dataEdit?.id || 0);
 
-        const result = await response.json();
-        if (response.ok){
+        if (!result || !result.product) {
             toast.success(result.message);
             if (dataEdit) 
                 onUpdateSuccess(result.product);
@@ -133,9 +123,6 @@ export default function ProductDialogAdd(props: Props) {
                 onAddSuccess(result.product);
 
             handleCloseDialog();
-        }
-        else{
-            toast.error(result.type[0]);
         }
     };
 
@@ -398,7 +385,7 @@ export default function ProductDialogAdd(props: Props) {
                                         </div>
                                         <div>
                                             <img
-                                                src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (item.image ?? "")}
+                                                src={API_BASE_URLS.ADMIN_MEDIA + (item.image ?? "")}
                                                 className="w-8 h-8 object-contain transition-transform duration-300"
                                             />
                                         </div>

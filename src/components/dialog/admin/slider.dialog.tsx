@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import { formatNumber } from "@/utils/common";
+import { formatNumber } from "@/lib/helpers";
 import { toast } from "react-toastify";
-import { sliderSchema } from "@/components/admin/admin.validate";
+import { sliderSchema } from "@/lib/validations";
+import { SliderService } from "@/services/admin.service";
+import { API_BASE_URLS } from "@/lib/constants";
 
 interface Props {
   isOpen: boolean;
@@ -52,7 +54,7 @@ export default function SliderDialogAdd(props: Props) {
                 link: dataEdit.link,
                 order: dataEdit.order,
             });
-            setPreviewUrl(`${process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA}` + dataEdit.image)
+            setPreviewUrl(`${API_BASE_URLS.ADMIN_MEDIA}${dataEdit.image}`)
         }
     }, [isOpen]);
 
@@ -77,13 +79,6 @@ export default function SliderDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `sliders/create/`;
-        let method = "POST";
-        if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `sliders/update/${dataEdit.id}/`;
-            method = "PUT";
-        }
-
         const formData = new FormData();
         formData.append("title", form.title);
         formData.append("link", String(form.link));
@@ -92,14 +87,9 @@ export default function SliderDialogAdd(props: Props) {
             formData.append("image", selectedFile);
         }
 
-        const response = await fetch(url, {
-            method: method,
-            credentials: "include",
-            body: formData,
-        });
+        const result = await SliderService.createSlider(formData, dataEdit?.id || 0);
 
-        const result = await response.json();
-        if (response.ok){
+        if (result.slider){
             toast.success(result.message);
             if (dataEdit) 
                 onUpdateSuccess(result.slider);

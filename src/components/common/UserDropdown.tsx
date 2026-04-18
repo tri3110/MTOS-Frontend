@@ -6,6 +6,8 @@ import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/utils/store";
 import { AvatarUser } from "@/app/auth/callback/page";
+import { API_BASE_URLS } from "@/lib/constants";
+import { AuthService } from "@/services";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,14 +25,12 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
   }
 
   const handleLogout = async () =>{
-    const response = await fetch(process.env.NEXT_PUBLIC_HTTP_AUTH + `logout/`, {
-      method: "POST",
-      credentials: "include"
-    })
-
-    if (response.ok) {
+    try {
+      await AuthService.logout();
       clearUser();
       router.push("/admin");
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   }
 

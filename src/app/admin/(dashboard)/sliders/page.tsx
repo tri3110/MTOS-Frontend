@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
 import Image from "next/image";
+import { API_BASE_URLS } from '@/lib/constants';
 
 import { 
     ColDef, 
@@ -25,9 +25,9 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import SliderDialogAdd from '../../../../components/dialog/slider.dialog';
+import SliderDialogAdd from '../../../../components/dialog/admin/slider.dialog';
 import useSWR from 'swr';
-import { fetcherSWR } from '@/utils/common';
+import { fetcherSWR } from '@/lib/helpers';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -96,7 +96,7 @@ export default function Sliders() {
 
                 const imageUrl = params.value.startsWith("http")
                     ? params.value
-                    : `${process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA}${params.value}`;
+                    : `${API_BASE_URLS.ADMIN_MEDIA}${params.value}`;
 
                 return (
                     <div className="flex items-center h-full">
@@ -141,7 +141,7 @@ export default function Sliders() {
                                 return prev.filter(s => s.id !== id);
                             });
                         }}
-                        deleteUrl={(id) => `${process.env.NEXT_PUBLIC_HTTP_ADMIN}sliders/delete/${id}/`}
+                        deleteUrl={(id) => `${API_BASE_URLS.ADMIN}sliders/delete/${id}/`}
                     />
                 )
             },
@@ -152,7 +152,7 @@ export default function Sliders() {
 
 
     const { data} = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_ADMIN + "sliders/get/",
+        API_BASE_URLS.ADMIN + "sliders/get/",
         fetcherSWR
     );
 
@@ -186,7 +186,7 @@ export default function Sliders() {
     }, []);
 
     return (
-        <div className={`ag-theme-alpine ${styles.gridWrapper}`} style={{ height: "calc(100vh - 150px)" }}>
+        <div className="ag-theme-alpine gridWrapper" style={{ height: "calc(100vh - 150px)" }}>
         <AgGridReact
             ref={gridRef}
             rowData={dataSliders}

@@ -1,4 +1,5 @@
-import { useDataStore } from "@/utils/store";
+import { API_BASE_URLS } from "@/lib/constants";
+import { ProductService } from "@/services";
 import { MagnifyingGlassIcon, StarIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -50,14 +51,8 @@ export default function AppSearch({ headerHeight}: SearchProps){
             try {
                 setLoading(true);
 
-                const rs = await fetch(`${process.env.NEXT_PUBLIC_HTTP_GUEST}products/search/?q=${debouncedValue}`,
-                    { signal: controller.signal }
-                );
-
-                if (!rs.ok) throw new Error("Fetch error");
-
-                const data = await rs.json();
-                setResults(data);
+                const data = await ProductService.searchProducts(debouncedValue);
+                setResults((data.products || []) as ProductType[]);
             } catch (err: any) {
                 if (err.name !== "AbortError") {
                 console.error(err);
@@ -119,7 +114,7 @@ export default function AppSearch({ headerHeight}: SearchProps){
                                         className="grid grid-cols-1 md:grid-cols-5 gap-2 p-2 cursor-pointer border-b border-gray-200">
                                         <div className="flex items-center">
                                             <img
-                                            src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (product.image ?? "")}
+                                            src={API_BASE_URLS.ADMIN_MEDIA + (product.image ?? "")}
                                             className="h-22 w-full object-cover rounded-md shadow-md"
                                             />
                                         </div>

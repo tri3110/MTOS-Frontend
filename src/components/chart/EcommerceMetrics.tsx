@@ -2,7 +2,7 @@
 
 import { ClockIcon , ArrowUpIcon, ClipboardDocumentListIcon, BanknotesIcon, TruckIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import MiniLineChart from "./MiniLine";
-import { formatNumber } from "@/utils/common";
+import { formatNumber } from "@/lib/helpers";
 
 type Props = {
     data: any;

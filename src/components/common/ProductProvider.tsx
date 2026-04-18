@@ -5,8 +5,9 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card/card";
 import Button from "@/components/ui/button/Button";
 import { ShoppingCart } from "lucide-react";
-import { formatNumber } from "@/utils/common";
-import OrderProductDialog from "../dialog/add.cart.dialog";
+import { formatNumber } from "@/lib/helpers";
+import OrderProductDialog from "../dialog/user/add.cart.dialog";
+import { API_BASE_URLS } from "@/lib/constants";
 
 interface Props {
     product: ProductType;
@@ -27,7 +28,7 @@ export default function ProductPage(props: Props){
                 <CardContent className="p-4 text-center flex flex-col h-full">
                 <div className="h-40 w-full bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
                     <img
-                    src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (product.image ?? "")}
+                    src={API_BASE_URLS.ADMIN_MEDIA + (product.image ?? "")}
                     alt={product.name}
                     className="w-full h-full object-contain transition-transform duration-300"
                     />

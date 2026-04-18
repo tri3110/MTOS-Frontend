@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
+import { API_BASE_URLS } from '@/lib/constants';
+import { VoucherService } from '@/services';
 
 import { 
     ColDef, 
@@ -25,8 +26,8 @@ import {
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
 import useSWR from 'swr';
-import { fetcherSWR } from '@/utils/common';
-import VoucherDialogAdd from '../../../../components/dialog/voucher.dialog';
+import { fetcherSWR } from '@/lib/helpers';
+import VoucherDialogAdd from '../../../../components/dialog/admin/voucher.dialog';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -134,7 +135,7 @@ export default function Vouchers() {
                                 return prev.filter(s => s.id !== id);
                             });
                         }}
-                        deleteUrl={(id) => `${process.env.NEXT_PUBLIC_HTTP_ADMIN}vouchers/delete/${id}/`}
+                        deleteUrl={(id) => `${API_BASE_URLS.ADMIN}vouchers/delete/${id}/`}
                     />
                 )
             },
@@ -144,7 +145,7 @@ export default function Vouchers() {
     ], [dataVoucher]);
 
     const { data} = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_ADMIN + "vouchers/get/",
+        API_BASE_URLS.ADMIN + "vouchers/get/",
         fetcherSWR
     );
 
@@ -178,7 +179,7 @@ export default function Vouchers() {
     }, []);
 
     return (
-        <div className={`ag-theme-alpine ${styles.gridWrapper}`} style={{ height: "calc(100vh - 150px)" }}>
+        <div className="ag-theme-alpine gridWrapper" style={{ height: "calc(100vh - 150px)" }}>
         <AgGridReact
             ref={gridRef}
             rowData={dataVoucher}

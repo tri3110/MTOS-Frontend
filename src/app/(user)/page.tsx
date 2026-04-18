@@ -2,10 +2,11 @@
 
 import AppSlider from "@/components/user/user.slider";
 import { useTranslation } from "react-i18next";
-import { fetcherSWR} from "@/utils/common";
+import { fetcherSWR} from "@/lib/helpers";
 import { useTheme } from "@/context/ThemeContext";
 import useSWR from "swr";
 import ProductPage from "@/components/common/ProductProvider";
+import { API_BASE_URLS } from "@/lib/constants";
 
 const themeStyle = {
   Dark : {
@@ -20,7 +21,7 @@ export default function HomePage() {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const { data: data, isLoading: loading } = useSWR(
-    process.env.NEXT_PUBLIC_HTTP_GUEST + "home/get/",
+    API_BASE_URLS.GUEST + "home/get/",
     fetcherSWR
   );
 

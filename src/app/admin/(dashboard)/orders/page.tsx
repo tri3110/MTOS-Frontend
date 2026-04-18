@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
+import { API_BASE_URLS } from '@/lib/constants';
+import { OrdersService } from '@/services';
 
 import { 
     ColDef, 
@@ -24,8 +25,8 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import useSWR from 'swr';
-import { fetcherSWR, formatNumber } from '@/utils/common';
+import useSWR from 'swr';4
+import { fetcherSWR, formatNumber } from '@/lib/helpers';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -201,7 +202,7 @@ export default function Vouchers() {
                                     return prev.filter(s => s.id !== id);
                                 });
                             }}
-                            deleteUrl={(id) => `${process.env.NEXT_PUBLIC_HTTP_ADMIN}orders/delete/${id}/`}
+                            deleteUrl={(id) => `${API_BASE_URLS.ADMIN}orders/delete/${id}/`}
                         />
                     </div>
                 )
@@ -212,7 +213,7 @@ export default function Vouchers() {
     ], [dataObject]);
 
     const {data} = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_ADMIN + "orders/get/",
+        API_BASE_URLS.ADMIN + "orders/get/",
         fetcherSWR
     );
 
@@ -224,7 +225,7 @@ export default function Vouchers() {
 
     const handleChangeStatus = async (id: number, status: string) => {
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_HTTP_ADMIN}orders/update/${id}/`, {
+            await fetch(`${API_BASE_URLS.ADMIN}orders/update/${id}/`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -245,7 +246,7 @@ export default function Vouchers() {
     };
 
     return (
-        <div className={`ag-theme-alpine ${styles.gridWrapper}`} style={{ height: "calc(100vh - 150px)" }}>
+        <div className="ag-theme-alpine gridWrapper" style={{ height: "calc(100vh - 150px)" }}>
         <AgGridReact
             ref={gridRef}
             rowData={dataObject}

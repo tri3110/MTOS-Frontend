@@ -1,11 +1,14 @@
 "use client"
 
-import { syncCart } from "@/components/CartProvider";
+import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { API_BASE_URLS } from "@/lib/constants";
+import { CartService } from "@/services";
 
 function PaymentSuccess() {
     const router = useRouter();
+    const { syncCart} = useCart();
     
     useEffect( () => {
         const fetchData = async () => {
@@ -15,21 +18,13 @@ function PaymentSuccess() {
 
                 if (!orderId) return;
 
-                const res = await fetch(process.env.NEXT_PUBLIC_HTTP_GUEST + "momo-ipn/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        orderId: orderId,
-                        resultCode: 0, // giả lập thành công
-                    }),
+                await CartService.handleMomoIPN({
+                    orderId: orderId,
+                    resultCode: 0, // giả lập thành công
                 });
 
-                if (res.ok){
-                    await syncCart();
-                    router.push("/");
-                }
+                await syncCart();
+                router.push("/");
 
             } catch (error) {
                 console.error("Failed to fetch schedule:", error);

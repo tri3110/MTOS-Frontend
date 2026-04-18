@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import { formatNumber } from "@/utils/common";
+import { formatNumber } from "@/lib/helpers";
 import { toast } from "react-toastify";
-import { toppingSchema } from "@/components/admin/admin.validate";
+import { toppingSchema } from "@/lib/validations";
+import { ToppingService } from "@/services/admin.service";
+import { API_BASE_URLS } from "@/lib/constants";
 
 interface Props {
   isOpen: boolean;
@@ -52,7 +54,7 @@ export default function ToppingDialogAdd(props: Props) {
                 price: dataEdit.price,
                 priceDisplay: formatNumber(String(dataEdit.price))
             });
-            setPreviewUrl(`${process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA}` + dataEdit.image)
+            setPreviewUrl(`${API_BASE_URLS.ADMIN_MEDIA}${dataEdit.image}`)
         }
     }, [isOpen]);
 
@@ -77,13 +79,6 @@ export default function ToppingDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `toppings/create/`;
-        let method = "POST";
-        if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `toppings/update/${dataEdit.id}/`;
-            method = "PUT";
-        }
-
         const formData = new FormData();
         formData.append("name", form.name);
         formData.append("price", String(form.price));
@@ -91,14 +86,9 @@ export default function ToppingDialogAdd(props: Props) {
             formData.append("image", selectedFile);
         }
 
-        const response = await fetch(url, {
-            method: method,
-            credentials: "include",
-            body: formData,
-        });
+        const result = await ToppingService.createToppings(formData, dataEdit?.id || 0);
 
-        const result = await response.json();
-        if (response.ok){
+        if (result.topping){
             toast.success(result.message);
             if (dataEdit) 
                 onUpdateSuccess(result.topping);

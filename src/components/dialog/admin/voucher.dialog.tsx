@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { voucherSchema } from "@/components/admin/admin.validate";
-import { formatDateTimeLocal } from "@/utils/common";
+import { voucherSchema } from "@/lib/validations";
+import { formatDateTimeLocal } from "@/lib/helpers";
+import { VoucherService } from "@/services/admin.service";
 
 interface Props {
   isOpen: boolean;
@@ -66,34 +67,16 @@ export default function VoucherDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `vouchers/create/`;
-        let method = "POST";
-        if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `vouchers/update/${dataEdit.id}/`;
-            method = "PUT";
-        }
+        const result = await VoucherService.createVoucher(form, dataEdit?.id || 0);
 
-        const response = await fetch(url, {
-            method: method,
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(form)
-        });
-
-        const result = await response.json();
-        if (response.ok){
+        if (result.voucher){
             toast.success(result.message);
             if (dataEdit) 
-                onUpdateSuccess(result.data);
+                onUpdateSuccess(result.voucher);
             else 
-                onAddSuccess(result.data);
+                onAddSuccess(result.voucher);
 
             handleCloseDialog();
-        }
-        else{
-            toast.error(result.type[0]);
         }
     };
 

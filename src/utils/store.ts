@@ -1,31 +1,14 @@
 import { create } from 'zustand';
 import { persist } from "zustand/middleware";
 
-interface DataStore {
+// interface DataStore {
 
-}
+// }
 
-export const useDataStore = create<DataStore>((set:any, get:any) => ({
-  data: null,
-  setData: (data:any) => set({ data }),
-}));
-
-interface User {
-  id: number;
-  full_name: string;
-  email: string;
-  is_admin: boolean;
-  is_staff_member: boolean;
-  phone: string;
-  role: string;
-  avatar: string
-};
-
-interface AuthState {
-  user: User | null;
-  setUser: (user: User|null) => void;
-  clearUser: () => void;
-};
+// export const useDataStore = create<DataStore>((set:any, get:any) => ({
+//   data: null,
+//   setData: (data:any) => set({ data }),
+// }));
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -56,6 +39,8 @@ export const useCartStore = create<CartStore>()(
       cartId: null,
 
       setCartId: (id) => set({ cartId: id }),
+      
+      setItems: (items) => set({ items }),
 
       addItem: (item) =>
         set((state) => {

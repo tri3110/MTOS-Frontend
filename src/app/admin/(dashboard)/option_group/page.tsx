@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import styles from '@/static/styles/admin.module.css';
 import { AgGridReact } from 'ag-grid-react';
+import { API_BASE_URLS } from '@/lib/constants';
+import { OptionGroupService } from '@/services/admin.service';
 
 import { 
     ColDef, 
@@ -24,7 +25,7 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import OptionGroupDialogAdd from '../../../../components/dialog/option.group.dialog';
+import OptionGroupDialogAdd from '../../../../components/dialog/admin/option.group.dialog';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -107,7 +108,7 @@ export default function OptionGroup() {
                                 return prev.filter(s => s.id !== id);
                             });
                         }}
-                        deleteUrl={(id) => `${process.env.NEXT_PUBLIC_HTTP_ADMIN}option_group/delete/${id}/`}
+                        deleteUrl={(id) => `${API_BASE_URLS.ADMIN}option_group/delete/${id}/`}
                     />
                 )
             },
@@ -119,15 +120,8 @@ export default function OptionGroup() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(
-                    process.env.NEXT_PUBLIC_HTTP_ADMIN + "option_group/get/",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                )
-                const data = await response.json();
-                setDataOptionGroup(data.data);
+                const data = await OptionGroupService.getOptionGroups();
+                setDataOptionGroup(data.options);
 
             } catch (error) {
                 console.error("Failed to fetch schedule:", error);
@@ -160,7 +154,7 @@ export default function OptionGroup() {
     }, []);
 
     return (
-        <div className={`ag-theme-alpine ${styles.gridWrapper}`} style={{ height: "calc(100vh - 150px)" }}>
+        <div className="ag-theme-alpine gridWrapper" style={{ height: "calc(100vh - 150px)" }}>
         <AgGridReact
             ref={gridRef}
             rowData={dataOptionGroup}

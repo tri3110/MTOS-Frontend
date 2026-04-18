@@ -1,8 +1,10 @@
 "use client"
 
 import Button from "@/components/ui/button/Button";
-import { formatNumber } from "@/utils/common";
+import { formatNumber } from "@/lib/helpers";
 import { useAuthStore, useCartStore } from "@/utils/store";
+import { API_BASE_URLS } from "@/lib/constants";
+import { CartService } from "@/services";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -21,19 +23,12 @@ export default function Cart() {
         }
 
         try {
-            const res = await fetch(
-            process.env.NEXT_PUBLIC_HTTP_GUEST + `cart/delete/${Number(id)}/`,
-            {
-                method: "DELETE",
-                credentials: "include",
-            }
-            );
+            await CartService.deleteCartItem(Number(id));
 
-            if (!res.ok) throw new Error("Delete failed");
-
-            const data = await res.json();
-
-            useCartStore.setState({items: data.items});
+            // Update local state after successful deletion
+            const currentItems = useCartStore.getState().items;
+            const updatedItems = currentItems.filter(item => item.id !== id);
+            useCartStore.setState({ items: updatedItems });
 
         } catch (err) {
             console.error(err);
@@ -52,27 +47,20 @@ export default function Cart() {
         }
 
         try {
-            const res = await fetch(
-                process.env.NEXT_PUBLIC_HTTP_GUEST + `cart/update/${item.id}/`,
-                {
-                    method: "PATCH",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        action: action
-                    }),
+            await CartService.updateCartItem(item.id, { action });
+
+            // Update local state after successful update
+            const currentItems = useCartStore.getState().items;
+            const updatedItems = currentItems.map(cartItem => {
+                if (cartItem.id === item.id) {
+                    return {
+                        ...cartItem,
+                        quantity: action === "increase" ? cartItem.quantity + 1 : Math.max(0, cartItem.quantity - 1)
+                    };
                 }
-            );
-
-            if (!res.ok) throw new Error("Update failed");
-
-            const data = await res.json();
-
-            useCartStore.setState({
-            items: data.items
-            });
+                return cartItem;
+            }).filter(cartItem => cartItem.quantity > 0);
+            useCartStore.setState({ items: updatedItems });
 
         } catch (err) {
             console.error(err);
@@ -97,14 +85,7 @@ export default function Cart() {
             return;
         }
 
-        const response = await fetch(
-            process.env.NEXT_PUBLIC_HTTP_GUEST + "payment/",
-            {
-                method: "POST",
-                credentials: "include",
-            }
-        )
-        const data = await response.json();
+        const data = await CartService.createPayment({});
 
         if (data.order_id) {
             let attempts = 0;
@@ -113,13 +94,7 @@ export default function Cart() {
             const interval = setInterval(async () => {
                 attempts++;
 
-                const res = await fetch(`${process.env.NEXT_PUBLIC_HTTP_GUEST}orders/${data.order_id}`,
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
-                const dataOrder = await res.json();
+                const dataOrder = await CartService.getOrder(data.order_id);
 
                 if (dataOrder.payment_url) {
                     clearInterval(interval);
@@ -143,7 +118,7 @@ export default function Cart() {
                             <div className="flex">
                                 <div>
                                     <img
-                                        src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (item?.product.image ?? "")}
+                                        src={API_BASE_URLS.ADMIN_MEDIA + (item?.product.image ?? "")}
                                         className="w-full h-32 object-contain"
                                     />
                                 </div>

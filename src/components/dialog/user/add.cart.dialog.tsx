@@ -1,11 +1,12 @@
 'use client';
 
 import Button from "@/components/ui/button/Button";
-import { formatNumber } from "@/utils/common";
+import { formatNumber } from "@/lib/helpers";
 import { ShoppingCart } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useAuthStore, useCartStore } from "@/utils/store";
 import { useTranslation } from "react-i18next";
+import { API_BASE_URLS } from "@/lib/constants";
 
 interface Props {
   isOpen: boolean;
@@ -51,7 +52,7 @@ export default function OrderProductDialog(props: Props) {
         } else {
             try {
                 const res = await fetch(
-                    process.env.NEXT_PUBLIC_HTTP_GUEST + "cart/add/",
+                    API_BASE_URLS.GUEST + "cart/add/",
                     {
                         method: "POST",
                         credentials: "include",
@@ -133,7 +134,7 @@ export default function OrderProductDialog(props: Props) {
                         <div className="col-span-5">
                             <div className="border border-gray-400 rounded-xl h-full items-center justify-center">
                                 <img
-                                    src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (selectProduct?.image ?? "")}
+                                    src={API_BASE_URLS.ADMIN_MEDIA + (selectProduct?.image ?? "")}
                                     className="w-full h-full object-contain"
                                 />
                             </div>
@@ -218,7 +219,7 @@ export default function OrderProductDialog(props: Props) {
                                                 </div>
                                                 <div>
                                                     <img
-                                                        src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (item.image ?? "")}
+                                                        src={API_BASE_URLS.ADMIN_MEDIA + (item.image ?? "")}
                                                         className="w-8 h-8 object-contain transition-transform duration-300"
                                                     />
                                                 </div>

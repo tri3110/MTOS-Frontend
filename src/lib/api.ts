@@ -1,6 +1,16 @@
 import queryString from 'query-string';
 
-export const sendRequest = async <T>(props: IRequest) => { //type
+export interface IRequest {
+  url: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  body?: any;
+  queryParams?: Record<string, any>;
+  useCredentials?: boolean;
+  headers?: Record<string, string>;
+  nextOption?: RequestInit;
+}
+
+export const sendRequest = async <T>(props: IRequest) => {
     let {
         url,
         method,
@@ -29,7 +39,7 @@ export const sendRequest = async <T>(props: IRequest) => { //type
             return res.json() as T; //generic
         } else {
             return res.json().then(function (json) {
-                // to be able to access error status when you catch the error 
+                // to be able to access error status when you catch the error
                 return {
                     statusCode: res.status,
                     message: json?.message ?? "",
@@ -40,7 +50,7 @@ export const sendRequest = async <T>(props: IRequest) => { //type
     });
 };
 
-export const sendRequestFile = async <T>(props: IRequest) => { //type
+export const sendRequestFile = async <T>(props: IRequest) => {
     let {
         url,
         method,
@@ -69,7 +79,7 @@ export const sendRequestFile = async <T>(props: IRequest) => { //type
             return res.json() as T; //generic
         } else {
             return res.json().then(function (json) {
-                // to be able to access error status when you catch the error 
+                // to be able to access error status when you catch the error
                 return {
                     statusCode: res.status,
                     message: json?.message ?? "",

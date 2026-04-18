@@ -1,15 +1,16 @@
 "use client"
 
-import { fetcherSWR } from "@/utils/common";
+import { fetcherSWR } from "@/lib/helpers";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import { API_BASE_URLS } from "@/lib/constants";
 
 const Footer = () => {
 
     const [dataStore, setDataStore] = useState<StoreType[]>([]);
 
     const { data} = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_GUEST + "stores/user/get/",
+        API_BASE_URLS.GUEST + "stores/user/get/",
         fetcherSWR
     );
 

@@ -7,10 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/utils/store";
-import { syncCart } from "@/components/CartProvider";
+import { useCart } from "@/hooks/useCart";
+import { AuthService } from "@/services/auth.service";
+import { API_BASE_URLS } from "@/lib/constants";
 
 export default function LoginAdmin() {
   const { t } = useTranslation();
+  const { syncCart} = useCart();
   const setUser = useAuthStore((state) => state.setUser);
   const [showPass, setShowPass] = useState(false);
   const router = useRouter();
@@ -27,21 +30,14 @@ export default function LoginAdmin() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch(process.env.NEXT_PUBLIC_HTTP_AUTH + `login/`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            username_or_email: formData.email,
-            password: formData.password,
-        }),
+    
+    const response = await AuthService.login({
+      email: formData.email,
+      password: formData.password
     });
 
-    if (response.ok){
-      const data = await response.json();
-      setUser(data.data.user);
+    if (response?.user) {
+      setUser(response.user);
 
       await syncCart();
 
@@ -120,8 +116,7 @@ export default function LoginAdmin() {
             </div>
             <button
               onClick={() => {
-                window.location.href =
-                  process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA +
+                window.location.href = API_BASE_URLS.ADMIN_MEDIA +
                   "/auth/login/google-oauth2/";
               }}
               className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-100 cursor-pointer"

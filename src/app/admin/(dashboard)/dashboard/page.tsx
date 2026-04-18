@@ -1,11 +1,10 @@
 'use client'
 
 import { EcommerceMetrics } from '@/components/chart/EcommerceMetrics';
-import OrdersByHourPyramid from '@/components/chart/OrdersByHourPyramid';
 import OrderStatusPieChart from '@/components/chart/OrderStatus';
 import RevenueOverview from '@/components/chart/StatisticsChart';
-import { fetcherSWR } from '@/utils/common';
-import { useEffect } from 'react';
+import { fetcherSWR } from '@/lib/helpers';
+import { API_BASE_URLS } from '@/lib/constants';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
@@ -13,7 +12,7 @@ export default function Home() {
     
     const { t } = useTranslation();
     const { data: data, isLoading: loading } = useSWR(
-        process.env.NEXT_PUBLIC_HTTP_ADMIN + "dashboard/?range=30d",
+        API_BASE_URLS.ADMIN + "dashboard/?range=30d",
         fetcherSWR
     );
 

@@ -63,3 +63,12 @@ export const storeSchema = z.object({
   address: z.string().min(1, "Address is required"),
   phone: z.string().min(1, "Phone is required"),
 });
+
+// Type exports for TypeScript
+export type ProductFormData = z.infer<typeof productSchema>;
+export type CategoryFormData = z.infer<typeof categorySchema>;
+export type SliderFormData = z.infer<typeof sliderSchema>;
+export type ToppingFormData = z.infer<typeof toppingSchema>;
+export type OptionFormData = z.infer<typeof optionSchema>;
+export type VoucherFormData = z.infer<typeof voucherSchema>;
+export type StoreFormData = z.infer<typeof storeSchema>;

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getColor } from "@/utils/common";
+import { getColor } from "@/lib/helpers";
 
 export default function Callback() {
     const searchParams = useSearchParams();

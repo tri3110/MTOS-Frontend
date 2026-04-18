@@ -6,6 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from "@heroicons/react/20
 import { useEffect, useState } from "react";
 // import MovieDialog from "./app.movie.dialog";
 import { useRouter } from "next/navigation";
+import { API_BASE_URLS } from "@/lib/constants";
 
 interface themeStyle {
     text: string;
@@ -71,7 +72,7 @@ export default function AppSlider(props: Props) {
                     <div className="rounded-lg overflow-hidden ">
                         <div className="relative">
                             <img
-                                src={process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA + (slider.image ?? "")}
+                                src={API_BASE_URLS.ADMIN_MEDIA + (slider.image ?? "")}
                                 alt={slider.title}
                                 className="w-full h-72 object-contain cursor-pointer"
                                 onClick={()=>router.push("/detail/" + slider.id)}

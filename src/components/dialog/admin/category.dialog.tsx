@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { formatNumber } from "@/utils/common";
+import { formatNumber } from "@/lib/helpers";
 import { toast } from "react-toastify";
-import { categorySchema } from "@/components/admin/admin.validate";
+import { categorySchema } from "@/lib/validations";
+import { CategoryService } from "@/services/admin.service";
 
 interface Props {
   isOpen: boolean;
@@ -52,26 +53,9 @@ export default function CategoryDialogAdd(props: Props) {
             return false;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `categories/create/`;
-        let method = "POST";
-        if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `categories/update/${dataEdit.id}/`;
-            method = "PUT";
-        }
-        
-        const response = await fetch(url, {
-            method: method,
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: form.name,
-            }),
-        });
+        const result = await CategoryService.createCategories(form, dataEdit?.id || 0);
 
-        const result = await response.json();
-        if (response.ok){
+        if (result.category) {
             toast.success(result.message);
             if (dataEdit) 
                 onUpdateSuccess(result.category);
@@ -79,9 +63,6 @@ export default function CategoryDialogAdd(props: Props) {
                 onAddSuccess(result.category);
 
             handleCloseDialog();
-        }
-        else{
-            toast.error(result.type[0]);
         }
     };
 

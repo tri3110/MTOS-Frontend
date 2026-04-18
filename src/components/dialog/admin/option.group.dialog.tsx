@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { optionSchema } from "@/components/admin/admin.validate";
+import { optionSchema } from "@/lib/validations";
+import { OptionGroupService } from "@/services/admin.service";
 
 interface Props {
   isOpen: boolean;
@@ -75,32 +76,14 @@ export default function OptionGroupDialogAdd(props: Props) {
             return;
         }
 
-        let url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `option_group/create/`;
-        let method = "POST";
-        if (dataEdit){
-            url = process.env.NEXT_PUBLIC_HTTP_ADMIN + `option_group/update/${dataEdit.id}/`;
-            method = "PUT";
-        }
+        const result = await OptionGroupService.createOptionGroup(form, dataEdit?.id || 0);
 
-        const response = await fetch(url, {
-            method,
-            headers: {
-            "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify(form),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
+        if (result.option) {
             if (dataEdit) onUpdateSuccess(result.option);
             else onAddSuccess(result.option);
 
             toast.success("Success");
             handleCloseDialog();
-        } else {
-            toast.error("Error");
         }
     };
 

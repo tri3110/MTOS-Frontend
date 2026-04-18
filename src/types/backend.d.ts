@@ -70,6 +70,7 @@ declare global {
         cartId: string | null;
         setCartId: (id: string) => void;
         addItem: (item: CartItem) => void;
+        setItems: (items: CartItem[]) => void;
         removeItem: (id: string) => void;
         getQuantity: () => number;
         getPrice: (item: CartItem) => number;
@@ -192,4 +193,21 @@ declare global {
     interface IRegister{
         _id : string;
     }
+
+    interface User {
+        id: number;
+        full_name: string;
+        email: string;
+        is_admin: boolean;
+        is_staff_member: boolean;
+        phone: string;
+        role: string;
+        avatar: string
+    };
+
+    interface AuthState {
+        user: User | null;
+        setUser: (user: User|null) => void;
+        clearUser: () => void;
+    };
 }
