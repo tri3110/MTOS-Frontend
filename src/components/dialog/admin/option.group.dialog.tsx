@@ -66,24 +66,29 @@ export default function OptionGroupDialogAdd(props: Props) {
         });
     }
 
-    const handleSubmit = async () => {
-        const validate = optionSchema.safeParse(form);
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        try {
+            const validate = optionSchema.safeParse(form);
 
-        if (!validate.success) {
-            validate.error.issues.forEach((err) => {
-                toast.error(err.message);
-            });
-            return;
-        }
+            if (!validate.success) {
+                validate.error.issues.forEach((err) => {
+                    toast.error(err.message);
+                });
+                return;
+            }
 
-        const result = await OptionGroupService.createOptionGroup(form, dataEdit?.id || 0);
+            const result = await OptionGroupService.createOptionGroup(form, dataEdit?.id || 0);
 
-        if (result.option) {
-            if (dataEdit) onUpdateSuccess(result.option);
-            else onAddSuccess(result.option);
+            if (result.option) {
+                if (dataEdit) onUpdateSuccess(result.option);
+                else onAddSuccess(result.option);
 
-            toast.success("Success");
-            handleCloseDialog();
+                toast.success("Success");
+                handleCloseDialog();
+            }
+        } catch (err) {
+            toast.error("Create failed");
         }
     };
 
@@ -131,7 +136,7 @@ export default function OptionGroupDialogAdd(props: Props) {
                     </button>
                 </div>
                 <div className="items-center gap-3 px-6 py-4 border-b border-gray-200">
-                    <form className="space-y-4">
+                    <form id="option-group-form" onSubmit={handleSubmit} className="space-y-4">
                         
                         <div className="grid grid-cols-8 items-center gap-2">
                             <label className="col-span-2 text-sm font-medium">
@@ -194,9 +199,9 @@ export default function OptionGroupDialogAdd(props: Props) {
                     </form>
                 </div>
                 <div className="px-6 py-2 flex items-center justify-end space-x-3 py-1.50 border-b border-gray-200">
-                    <div onClick={()=>handleSubmit()} className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
+                    <button form="option-group-form" type="submit" className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
                         {dataEdit? "Save":"Add"}
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>

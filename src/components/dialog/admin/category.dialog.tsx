@@ -20,6 +20,7 @@ interface CategoryTypeAdd {
 }
 
 export default function CategoryDialogAdd(props: Props) {
+
     const {isOpen, setIsOpen, onAddSuccess, dataEdit, setDataEdit, onUpdateSuccess} = props
     const [form, setForm] = useState<CategoryTypeAdd>({
         name: ''
@@ -44,46 +45,38 @@ export default function CategoryDialogAdd(props: Props) {
         });
     }
 
-    const handleSubmit = async () => {
-        const validate = categorySchema.safeParse(form);
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        try {
+            const validate = categorySchema.safeParse(form);
 
-        if (!validate.success) {
-            const messages = validate.error.issues[0]?.message;
-            toast.error(messages);
-            return false;
-        }
+            if (!validate.success) {
+                const messages = validate.error.issues[0]?.message;
+                toast.error(messages);
+                return false;
+            }
 
-        const result = await CategoryService.createCategories(form, dataEdit?.id || 0);
+            const result = await CategoryService.createCategories(form, dataEdit?.id || 0);
 
-        if (result.category) {
-            toast.success(result.message);
-            if (dataEdit) 
-                onUpdateSuccess(result.category);
-            else 
-                onAddSuccess(result.category);
+            if (result.category) {
+                toast.success(result.message);
+                if (dataEdit) 
+                    onUpdateSuccess(result.category);
+                else 
+                    onAddSuccess(result.category);
 
-            handleCloseDialog();
+                handleCloseDialog();
+            }
+        } catch (err) {
+            toast.error("Create failed");
         }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-
-        if (name === "price") {
-            const raw = value.replace(/\D/g, "");
-
-            setForm((prev) => ({
-                ...prev,
-                price: raw ? Number(raw) : 0,
-                priceDisplay: formatNumber(raw)
-            }));
-        } else {
-            setForm((prev) => ({
-            ...prev,
-            [name]: value,
-            }));
-        }
+        setForm((prev) => ({...prev, [name]: value,}));
     };
+
     return(
         isOpen &&
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -100,14 +93,15 @@ export default function CategoryDialogAdd(props: Props) {
                     </button>
                 </div>
                 <div className="items-center gap-3 px-6 py-4 border-b border-gray-200">
-                    <form onSubmit={handleCloseDialog} className="space-y-4">
+                    <form id="category-form" onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-12">
                             <div className="space-y-4">
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
+                                    <label htmlFor="name" className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
                                     <input
                                         type="text"
                                         name="name"
+                                        id="name"
                                         autoFocus
                                         value={form.name}
                                         onChange={handleChange}
@@ -119,9 +113,9 @@ export default function CategoryDialogAdd(props: Props) {
                     </form>
                 </div>
                 <div className="px-6 py-2 flex items-center justify-end space-x-3 py-1.50 border-b border-gray-200">
-                    <div onClick={()=>handleSubmit()} className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
+                    <button form="category-form" type="submit" className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
                         {dataEdit? "Save":"Add"}
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>

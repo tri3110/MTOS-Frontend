@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { formatNumber } from "@/lib/helpers";
 import { toast } from "react-toastify";
 import { toppingSchema } from "@/lib/validations";
+import { useForm} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ToppingService } from "@/services/admin.service";
 import { API_BASE_URLS } from "@/lib/constants";
+import React from "react";
 
 interface Props {
   isOpen: boolean;
@@ -16,110 +19,98 @@ interface Props {
   onUpdateSuccess: (updatedItem: ToppingType) => void;
 }
 
-interface TypeAdd {
+type FormValues = {
   name: string;
-  image: string | null;
   price: number;
-  priceDisplay: string;
-}
+};
 
-export default function ToppingDialogAdd(props: Props) {
+export default React.memo(function ToppingDialogAdd(props: Props) {
     const {isOpen, setIsOpen, onAddSuccess, dataEdit, setDataEdit, onUpdateSuccess} = props
-    const [form, setForm] = useState<TypeAdd>({
-        name: '',
-        image: '',
-        price: 0,
-        priceDisplay: '',
+    
+    const { 
+        register, handleSubmit, reset, setValue, formState: { errors },
+    } = useForm<FormValues>({
+        resolver: zodResolver(toppingSchema),
+        defaultValues: {
+            name: "",
+            price: 0
+        },
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [priceDisplay, setPriceDisplay] = useState("");
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setSelectedFile(file);
             setPreviewUrl(URL.createObjectURL(file));
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (!isOpen) return;
 
         if (dataEdit) {
-            setForm({
-                name: dataEdit.name,
-                image: dataEdit.image,
-                price: dataEdit.price,
-                priceDisplay: formatNumber(String(dataEdit.price))
+            reset({
+              name: dataEdit.name,
+              price: Number(dataEdit.price),
             });
-            setPreviewUrl(`${API_BASE_URLS.ADMIN_MEDIA}${dataEdit.image}`)
+            setPriceDisplay(formatNumber(String(dataEdit.price)));
+            setPreviewUrl(`${API_BASE_URLS.ADMIN_MEDIA}${dataEdit.image}`);
+        } else {
+            reset({
+              name: "",
+              price: 0,
+            });
+            setPriceDisplay("");
+            setSelectedFile(null);
+            setPreviewUrl(null);
         }
-    }, [isOpen]);
+    }, [isOpen, dataEdit, reset]);
 
-    const handleCloseDialog = () => {
+    const handleCloseDialog = useCallback(() => {
         setIsOpen(false);
         setDataEdit(null);
 
-        setForm({
-            name: '',
-            image: '',
-            price: 0,
-            priceDisplay: '',
-        });
-    }
+        reset({ name: "", price: 0});
+        setPriceDisplay("");
+    }, [setIsOpen, setDataEdit, reset]);
 
-    const handleSubmit = async () => {
-        const validate = toppingSchema.safeParse(form);
+    const onSubmit = useCallback(async (values: FormValues) => {
+        try {
+            const formData = new FormData();
+            formData.append("name", values.name);
+            formData.append("price", String(values.price));
+            if (selectedFile) {
+                formData.append("image", selectedFile);
+            }
 
-        if (!validate.success) {
-            const messages = validate.error.issues[0]?.message;
-            toast.error(messages);
-            return false;
+            const result = await ToppingService.createToppings(formData, dataEdit?.id || 0);
+
+            if (result.topping) {
+                toast.success(result.message);
+                if (dataEdit) 
+                    onUpdateSuccess(result.topping);
+                else 
+                    onAddSuccess(result.topping);
+
+                handleCloseDialog();
+            }
+        } catch (error: any) {
+            toast.error(error.message);
         }
+    }, [onUpdateSuccess, onAddSuccess, handleCloseDialog]);
 
-        const formData = new FormData();
-        formData.append("name", form.name);
-        formData.append("price", String(form.price));
-        if (selectedFile) {
-            formData.append("image", selectedFile);
-        }
+    const handlePriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const raw = e.target.value.replace(/\D/g, "");
+        const price = raw ? Number(raw) : 0;
+        setValue("price", price, { shouldValidate: true });
+        setPriceDisplay(formatNumber(raw));
+    }, [setValue]);
 
-        const result = await ToppingService.createToppings(formData, dataEdit?.id || 0);
-
-        if (result.topping){
-            toast.success(result.message);
-            if (dataEdit) 
-                onUpdateSuccess(result.topping);
-            else 
-                onAddSuccess(result.topping);
-
-            handleCloseDialog();
-        }
-        else{
-            toast.error(result.type[0]);
-        }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-
-        if (name === "price") {
-            const raw = value.replace(/\D/g, "");
-
-            setForm((prev) => ({
-                ...prev,
-                price: raw ? Number(raw) : 0,
-                priceDisplay: formatNumber(raw)
-            }));
-        } else {
-            setForm((prev) => ({
-            ...prev,
-            [name]: value,
-            }));
-        }
-    };
     return(
         isOpen &&
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -136,35 +127,40 @@ export default function ToppingDialogAdd(props: Props) {
                     </button>
                 </div>
                 <div className="items-center gap-3 px-6 py-4 border-b border-gray-200">
-                    <form onSubmit={handleCloseDialog} className="space-y-4">
+                    <form id="topping-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-12">
                             <div className="space-y-4">
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        autoFocus
-                                        value={form.name}
-                                        onChange={handleChange}
-                                        className="mt-1 w-full border px-3 py-2 rounded col-span-6"
-                                    />
+                                    <label htmlFor="name" className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
+                                    <div className="col-span-6">
+                                        <input
+                                            id="name"
+                                            type="text"
+                                            {...register("name")}
+                                            className="w-full border px-3 py-1 rounded"
+                                        />
+                                        {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+                                    </div>
                                 </div>
                                 
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">
+                                    <label htmlFor="price" className="block text-sm font-medium col-span-2">
                                         Price <span className="text-red-500">(*)</span>
                                     </label>
-                                    <div className="relative col-span-6">
-                                        <input
-                                        type="text"
-                                        name="price"
-                                        value={form.priceDisplay}
-                                        onChange={handleChange}
-                                        placeholder="0.00"
-                                        className="w-full border px-3 py-1 pr-14 rounded"
-                                        />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">VNĐ</span>
+
+                                    <div className="col-span-6">
+                                        <div className="relative">
+                                            <input
+                                            type="text"
+                                            id="price"
+                                            value={priceDisplay}
+                                            onChange={handlePriceChange}
+                                            placeholder="0.00"
+                                            className="w-full border px-3 py-1 pr-14 rounded"
+                                            />
+                                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">VNĐ</span>
+                                        </div>
+                                        {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price.message}</p>}
                                     </div>
                                 </div>
                                 <div className="space-y-2 col-span-8">
@@ -210,11 +206,11 @@ export default function ToppingDialogAdd(props: Props) {
                     </form>
                 </div>
                 <div className="px-6 py-2 flex items-center justify-end space-x-3 py-1.50 border-b border-gray-200">
-                    <div onClick={()=>handleSubmit()} className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
+                    <button type="submit" form="topping-form" className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
                         {dataEdit? "Save":"Add"}
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
     )
-}
+})

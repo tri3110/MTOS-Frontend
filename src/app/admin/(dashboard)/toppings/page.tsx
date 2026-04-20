@@ -27,7 +27,7 @@ import {
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
 import ToppingDialogAdd from '../../../../components/dialog/admin/topping.dialog';
-import { fetcherSWR } from '@/lib/helpers';
+import { fetcherSWR, formatNumber } from '@/lib/helpers';
 import useSWR from 'swr';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
@@ -117,8 +117,12 @@ export default function Toppings() {
         { 
             field: "price", 
             headerName: "Price",
-            cellClass:"grid-border-r",
-            width: 200,
+            cellClass:"grid-border-r text-right",
+            width: 150,
+            valueFormatter: ({ value }) => {
+                return formatNumber(String(value)) + " VND";
+            },
+            // editable: true,
             filter: true,
         },
         { 

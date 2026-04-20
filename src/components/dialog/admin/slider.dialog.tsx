@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { formatNumber } from "@/lib/helpers";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { sliderSchema } from "@/lib/validations";
 import { SliderService } from "@/services/admin.service";
 import { API_BASE_URLS } from "@/lib/constants";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface Props {
   isOpen: boolean;
@@ -16,20 +18,24 @@ interface Props {
   onUpdateSuccess: (updatedSlider: SliderType) => void;
 }
 
-interface SliderTypeAdd {
-  title: string;
-  image: string | null;
-  link: string;
-  order: number;
-}
+type FormValues = {
+    title: string;
+    order?: number;
+    link?: string;
+};
 
-export default function SliderDialogAdd(props: Props) {
+export default React.memo(function SliderDialogAdd(props: Props) {
     const {isOpen, setIsOpen, onAddSuccess, dataEdit, setDataEdit, onUpdateSuccess} = props
-    const [form, setForm] = useState<SliderTypeAdd>({
-        title: '',
-        image: '',
-        link: '',
-        order: 0,
+    
+    const { 
+        register, handleSubmit, reset, formState: { errors },
+    } = useForm<FormValues>({
+        resolver: zodResolver(sliderSchema),
+        defaultValues: {
+            title: "",
+            order: 0,
+            link: "",
+        },
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,79 +54,61 @@ export default function SliderDialogAdd(props: Props) {
         if (!isOpen) return;
 
         if (dataEdit) {
-            setForm({
+            reset({
                 title: dataEdit.title,
-                image: dataEdit.image,
                 link: dataEdit.link,
                 order: dataEdit.order,
             });
             setPreviewUrl(`${API_BASE_URLS.ADMIN_MEDIA}${dataEdit.image}`)
         }
-    }, [isOpen]);
+        else {
+            reset({
+              title: "",
+              link: "",
+              order: 0,
+            });
+            setSelectedFile(null);
+            setPreviewUrl(null);
+        }
+    }, [isOpen, dataEdit, reset]);
 
-    const handleCloseDialog = () => {
+    const handleCloseDialog = useCallback(() => {
         setIsOpen(false);
         setDataEdit(null);
 
-        setForm({
+        reset({
             title: '',
-            image: '',
             link: '',
             order: 0,
         });
-    }
+    }, [setIsOpen, setDataEdit, reset]);
 
-    const handleSubmit = async () => {
-        const validate = sliderSchema.safeParse(form);
+    const onSubmit = useCallback(async (values: FormValues) => {
+        try {
+            const formData = new FormData();
+            formData.append("title", values.title);
+            formData.append("link", values.link || '');
+            formData.append("order", String(values.order));
+            if (selectedFile) {
+                formData.append("image", selectedFile);
+            }
 
-        if (!validate.success) {
-            const messages = validate.error.issues[0]?.message;
-            toast.error(messages);
-            return false;
+            const result = await SliderService.createSlider(formData, dataEdit?.id || 0);
+
+            if (result.slider) {
+                toast.success(result.message);
+                if (dataEdit) 
+                    onUpdateSuccess(result.slider);
+                else 
+                    onAddSuccess(result.slider);
+
+                handleCloseDialog();
+            }
+        } catch (err) {
+            toast.error("Create failed");
         }
-
-        const formData = new FormData();
-        formData.append("title", form.title);
-        formData.append("link", String(form.link));
-        formData.append("order", String(form.order));
-        if (selectedFile) {
-            formData.append("image", selectedFile);
-        }
-
-        const result = await SliderService.createSlider(formData, dataEdit?.id || 0);
-
-        if (result.slider){
-            toast.success(result.message);
-            if (dataEdit) 
-                onUpdateSuccess(result.slider);
-            else 
-                onAddSuccess(result.slider);
-
-            handleCloseDialog();
-        }
-        else{
-            toast.error(result.type[0]);
-        }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-
-        if (name === "price") {
-            const raw = value.replace(/\D/g, "");
-
-            setForm((prev) => ({
-                ...prev,
-                price: raw ? Number(raw) : 0,
-                priceDisplay: formatNumber(raw)
-            }));
-        } else {
-            setForm((prev) => ({
-            ...prev,
-            [name]: value,
-            }));
-        }
-    };
+    }, [onUpdateSuccess, onAddSuccess, handleCloseDialog]);
+    
     return(
         isOpen &&
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -137,50 +125,50 @@ export default function SliderDialogAdd(props: Props) {
                     </button>
                 </div>
                 <div className="items-center gap-3 px-6 py-4 border-b border-gray-200">
-                    <form onSubmit={handleCloseDialog} className="space-y-4">
+                    <form id="slider-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-12">
                             <div className="space-y-4">
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Title <span className="text-red-500">(*)</span></label>
-                                    <input
-                                        type="text"
-                                        name="title"
-                                        autoFocus
-                                        value={form.title}
-                                        onChange={handleChange}
-                                        className="mt-1 w-full border px-3 py-2 rounded col-span-6"
-                                    />
+                                    <label htmlFor="title" className="block text-sm font-medium col-span-2">Title <span className="text-red-500">(*)</span></label>
+                                    <div className="col-span-6">
+                                        <input
+                                            id="title"
+                                            type="text"
+                                            autoFocus
+                                            {...register("title")}
+                                            className="w-full border px-3 py-1 rounded"
+                                        />
+                                        {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
+                                    </div>
                                 </div>
                                 {
                                     dataEdit && 
+
                                     <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                        <label className="block text-sm font-medium col-span-2">
-                                            Order <span className="text-red-500">(*)</span>
-                                        </label>
-                                        <div className="relative col-span-6">
+                                        <label htmlFor="order" className="block text-sm font-medium col-span-2">Order <span className="text-red-500">(*)</span></label>
+                                        <div className="col-span-6">
                                             <input
-                                            type="text"
-                                            name="order"
-                                            value={form.order}
-                                            onChange={handleChange}
-                                            className="w-full border px-3 py-2 pr-14 rounded"
+                                                id="order"
+                                                type="number"
+                                                autoFocus
+                                                {...register("order")}
+                                                className="w-full border px-3 py-1 rounded"
                                             />
+                                            {errors.order && <p className="text-xs text-red-500 mt-1">{errors.order.message}</p>}
                                         </div>
                                     </div>
                                 }
-                                
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">
-                                        Link
-                                    </label>
-                                    <div className="relative col-span-6">
+                                    <label htmlFor="link" className="block text-sm font-medium col-span-2">Link</label>
+                                    <div className="col-span-6">
                                         <input
-                                        type="text"
-                                        name="link"
-                                        value={form.link}
-                                        onChange={handleChange}
-                                        className="w-full border px-3 py-2 pr-14 rounded"
+                                            id="link"
+                                            type="text"
+                                            autoFocus
+                                            {...register("link")}
+                                            className="w-full border px-3 py-1 rounded"
                                         />
+                                        {errors.link && <p className="text-xs text-red-500 mt-1">{errors.link.message}</p>}
                                     </div>
                                 </div>
                                 <div className="space-y-2 col-span-8">
@@ -226,11 +214,11 @@ export default function SliderDialogAdd(props: Props) {
                     </form>
                 </div>
                 <div className="px-6 py-2 flex items-center justify-end space-x-3 py-1.50 border-b border-gray-200">
-                    <div onClick={()=>handleSubmit()} className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
+                    <button form="slider-form" type="submit" className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-2 cursor-pointer">
                         {dataEdit? "Save":"Add"}
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
     )
-}
+})

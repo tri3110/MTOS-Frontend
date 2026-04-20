@@ -28,7 +28,7 @@ import {
 import ProductDialogAdd from '../../../../components/dialog/admin/product.dialog';
 import ActionButtons from '@/components/common/ActionButtons';
 import useSWR from 'swr';
-import { fetcherSWR } from '@/lib/helpers';
+import { fetcherSWR, formatNumber } from '@/lib/helpers';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 
@@ -132,8 +132,11 @@ export default function Products() {
         { 
             field: "price", 
             headerName: "Price",
-            cellClass:"grid-border-r",
-            width: 200,
+            cellClass:"grid-border-r text-right",
+            width: 150,
+            valueFormatter: ({ value }) => {
+                return formatNumber(String(value)) + " VND";
+            },
             // editable: true,
             filter: true,
         },

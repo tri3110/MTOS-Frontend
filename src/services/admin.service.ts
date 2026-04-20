@@ -235,7 +235,12 @@ export class AdminProductService {
         const result = await response.json();
         
         if (!response.ok) {
-            toast.error(result.type[0])
+            const message =
+                result?.type?.[0] ||
+                result?.message ||
+                "Tạo sản phẩm thất bại";
+
+            throw new Error(message);
         }
 
         return result;

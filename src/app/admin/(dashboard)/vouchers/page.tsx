@@ -26,7 +26,7 @@ import {
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
 import useSWR from 'swr';
-import { fetcherSWR } from '@/lib/helpers';
+import { fetcherSWR, formatNumber } from '@/lib/helpers';
 import VoucherDialogAdd from '../../../../components/dialog/admin/voucher.dialog';
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
@@ -118,7 +118,11 @@ export default function Vouchers() {
         { 
             field: "min_order_value", 
             headerName: "Min Order",
-            cellClass:"grid-border-r",
+            cellClass:"grid-border-r text-right",
+            width: 150,
+            valueFormatter: ({ value }) => {
+                return formatNumber(String(value)) + " VND";
+            },
             filter: true,
         },
         { 

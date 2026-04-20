@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  price: z.coerce.number().min(1000, "Price phải > 1000"),
-  category_id: z.coerce.number().min(1, "Chọn category"),
+  price: z.number().min(1000, "Price phải > 1000"),
+  category_id: z.number().min(1, "Chọn category"),
 });
 
 export const categorySchema = z.object({
@@ -12,11 +12,12 @@ export const categorySchema = z.object({
 
 export const sliderSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  order: z.number().default(0),
 });
 
 export const toppingSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  price: z.coerce.number().min(1000, "Price phải > 1000"),
+  price: z.number().min(1000, "Price phải > 1000"),
 });
 
 export const optionSchema = z.object({
@@ -37,7 +38,7 @@ export const optionSchema = z.object({
 export const voucherSchema = z.object({
   code: z.string().min(1, "Code là bắt buộc"),
 
-  discount_type: z.coerce.string().min(1, "Chọn loại giảm giá"),
+  discount_type: z.string().min(1, "Chọn loại giảm giá"),
 
   discount_value: z
     .number()
@@ -54,8 +55,6 @@ export const voucherSchema = z.object({
   expired_at: z
     .string()
     .min(1, "Chọn ngày hết hạn"),
-
-  is_active: z.boolean(),
 });
 
 export const storeSchema = z.object({

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { storeSchema } from "@/lib/validations";
 import { StoreService } from "@/services/admin.service";
+import React from "react";
 
 interface Props {
   isOpen: boolean;
@@ -14,7 +15,7 @@ interface Props {
   onUpdateSuccess: (updatedItem: StoreType) => void;
 }
 
-export default function StoreDialogAdd(props: Props) {
+export default React.memo(function StoreDialogAdd(props: Props) {
     const {isOpen, setIsOpen, onAddSuccess, dataEdit, setDataEdit, onUpdateSuccess} = props
     const [form, setForm] = useState<StoreType>({
         name: "",
@@ -45,25 +46,30 @@ export default function StoreDialogAdd(props: Props) {
         });
     }
 
-    const handleSubmit = async () => {
-        const validate = storeSchema.safeParse(form);
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const validate = storeSchema.safeParse(form);
 
-        if (!validate.success) {
-            const messages = validate.error.issues[0]?.message;
-            toast.error(messages);
-            return false;
-        }
+            if (!validate.success) {
+                const messages = validate.error.issues[0]?.message;
+                toast.error(messages);
+                return false;
+            }
 
-        const result = await StoreService.createStore(form, dataEdit?.id || 0);
-        
-        if (result.store){
-            toast.success(result.message);
-            if (dataEdit) 
-                onUpdateSuccess(result.store);
-            else 
-                onAddSuccess(result.store);
+            const result = await StoreService.createStore(form, dataEdit?.id || 0);
+            
+            if (result.store){
+                toast.success(result.message);
+                if (dataEdit) 
+                    onUpdateSuccess(result.store);
+                else 
+                    onAddSuccess(result.store);
 
-            handleCloseDialog();
+                handleCloseDialog();
+            }
+        } catch (error: any) {
+            toast.error(error.message || "An error occurred");
         }
     };
 
@@ -74,6 +80,7 @@ export default function StoreDialogAdd(props: Props) {
             [name]: value,
         }));
     };
+    
     return(
         isOpen &&
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -90,14 +97,15 @@ export default function StoreDialogAdd(props: Props) {
                     </button>
                 </div>
                 <div className="items-center gap-3 px-6 py-4 border-b border-gray-200">
-                    <form onSubmit={handleCloseDialog} className="space-y-4">
+                    <form id="store-form" onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-12">
                             <div className="space-y-4">
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
+                                    <label htmlFor="name" className="block text-sm font-medium col-span-2">Name <span className="text-red-500">(*)</span></label>
                                     <input
                                         type="text"
                                         name="name"
+                                        id="name"
                                         autoFocus
                                         value={form.name}
                                         onChange={handleChange}
@@ -105,20 +113,22 @@ export default function StoreDialogAdd(props: Props) {
                                     />
                                 </div>
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Address <span className="text-red-500">(*)</span></label>
+                                    <label htmlFor="address" className="block text-sm font-medium col-span-2">Address <span className="text-red-500">(*)</span></label>
                                     <input
                                         type="text"
                                         name="address"
+                                        id="address"
                                         value={form.address}
                                         onChange={handleChange}
                                         className="mt-1 w-full border px-3 py-2 rounded col-span-6"
                                     />
                                 </div>
                                 <div className="items-center space-y-2 grid grid-cols-2 md:grid-cols-8">
-                                    <label className="block text-sm font-medium col-span-2">Phone <span className="text-red-500">(*)</span></label>
+                                    <label htmlFor="phone" className="block text-sm font-medium col-span-2">Phone <span className="text-red-500">(*)</span></label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="phone"
+                                        id="phone"
                                         value={form.phone}
                                         onChange={handleChange}
                                         className="mt-1 w-full border px-3 py-2 rounded col-span-6"
@@ -129,11 +139,11 @@ export default function StoreDialogAdd(props: Props) {
                     </form>
                 </div>
                 <div className="px-6 py-2 flex items-center justify-end space-x-3 py-1.50 border-b border-gray-200">
-                    <div onClick={()=>handleSubmit()} className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-1 cursor-pointer">
+                    <button type="submit" form="store-form" className="text-white text-lg hover:bg-pink-600 rounded-lg border border-pink-500 bg-pink-500 p-1 cursor-pointer">
                         {dataEdit? "Save":"Add"}
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
     )
-}
+});
