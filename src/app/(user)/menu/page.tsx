@@ -27,7 +27,7 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
 
     return (
         <div style={{background: theme["bg-home"]}}>
-            <div style={{background: theme["bg-home"]}} className= {`px-4 max-w-screen-xl mx-auto`}>
+            <div style={{background: theme["bg-home"]}} className= {`min-h-[1054px] px-4 max-w-screen-xl mx-auto`}>
                 <ProductsPage products={dataProducts} categories={dataCategories} slug={slug}/>
             </div>
         </div>

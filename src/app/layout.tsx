@@ -4,6 +4,9 @@ import "./globals.css";
 import I18nProvider from "@/context/i18n-provider";
 import AuthProvider from "@/components/common/AuthProvider";
 import { ThemeProvider } from '@/context/ThemeContext';
+import { WebVitals } from "@/components/common/WebVitals";
+import ReactQueryProvider from "@/components/common/ReactQueryProvider";
+import NotificationToaster from "@/components/notifications/NotificationToaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,19 +28,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <WebVitals/>
+        <NotificationToaster/>
         <I18nProvider>
           <ThemeProvider>
             <AuthProvider>
-              {children}
+              <ReactQueryProvider>
+                {children}
+              </ReactQueryProvider>
             </AuthProvider>
           </ThemeProvider>
         </I18nProvider>
+        
       </body>
     </html>
   );

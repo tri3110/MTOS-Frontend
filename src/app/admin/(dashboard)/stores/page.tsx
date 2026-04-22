@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { API_BASE_URLS } from '@/lib/constants';
-import { StoreService } from '@/services';
 
 import { 
     ColDef, 
@@ -25,7 +24,11 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import StoreDialogAdd from '../../../../components/dialog/admin/store.dialog';
+import dynamic from 'next/dynamic';
+const StoreDialogAdd = dynamic(
+    () => import('@/components/dialog/admin/store.dialog'),
+    { ssr: false }
+);
 import useSWR from 'swr';
 import { fetcherSWR } from '@/lib/helpers';
 ModuleRegistry.registerModules([

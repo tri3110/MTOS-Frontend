@@ -12,9 +12,12 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
+    "@tanstack/react-query": "^5.99.2",
+    "@tanstack/react-table": "^8.21.3",
     "ag-grid-community": "^35.2.0",
     "ag-grid-react": "^35.2.0",
     "apexcharts": "^5.10.6",
+    "axios": "^1.15.1",
     "flag-icons": "^7.5.0",
     "flatpickr": "^4.6.13",
     "i18next": "^26.0.1",

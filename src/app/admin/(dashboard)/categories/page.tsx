@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { API_BASE_URLS } from '@/lib/constants';
 import { CategoryService } from '@/services';
+import dynamic from 'next/dynamic';
 
 import { 
     ColDef, 
@@ -25,7 +26,12 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import CategoryDialogAdd from '../../../../components/dialog/admin/category.dialog';
+
+const CategoryDialogAdd = dynamic(
+    () => import('@/components/dialog/admin/category.dialog'),
+    { ssr: false }
+);
+
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 

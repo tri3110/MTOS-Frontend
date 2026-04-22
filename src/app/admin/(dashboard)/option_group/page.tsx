@@ -4,6 +4,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { API_BASE_URLS } from '@/lib/constants';
 import { OptionGroupService } from '@/services/admin.service';
+import dynamic from 'next/dynamic';
+const OptionGroupDialogAdd = dynamic(
+    () => import('@/components/dialog/admin/option.group.dialog'),
+    { ssr: false }
+);
 
 import { 
     ColDef, 
@@ -25,7 +30,7 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import OptionGroupDialogAdd from '../../../../components/dialog/admin/option.group.dialog';
+
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 

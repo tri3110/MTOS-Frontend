@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { API_BASE_URLS } from '@/lib/constants';
-import { VoucherService } from '@/services';
-
 import { 
     ColDef, 
     ModuleRegistry, 
@@ -27,7 +25,11 @@ import {
 import ActionButtons from '@/components/common/ActionButtons';
 import useSWR from 'swr';
 import { fetcherSWR, formatNumber } from '@/lib/helpers';
-import VoucherDialogAdd from '../../../../components/dialog/admin/voucher.dialog';
+import dynamic from 'next/dynamic';
+const VoucherDialogAdd = dynamic(
+    () => import('@/components/dialog/admin/voucher.dialog'),
+    { ssr: false }
+);
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 

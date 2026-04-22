@@ -25,10 +25,16 @@ import {
     SelectEditorModule,
     RowApiModule,
 } from 'ag-grid-community';
-import ProductDialogAdd from '../../../../components/dialog/admin/product.dialog';
+
+import dynamic from 'next/dynamic';
+const ProductDialogAdd = dynamic(
+    () => import('@/components/dialog/admin/product.dialog'),
+    { ssr: false }
+);
 import ActionButtons from '@/components/common/ActionButtons';
 import useSWR from 'swr';
 import { fetcherSWR, formatNumber } from '@/lib/helpers';
+
 ModuleRegistry.registerModules([
     ClientSideRowModelModule, 
     ValidationModule, 

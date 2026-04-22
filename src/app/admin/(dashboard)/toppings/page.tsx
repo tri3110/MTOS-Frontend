@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import Image from "next/image";
 import { API_BASE_URLS } from '@/lib/constants';
-import { ToppingService } from '@/services';
 
 import { 
     ColDef, 
@@ -26,7 +25,11 @@ import {
     RowApiModule,
 } from 'ag-grid-community';
 import ActionButtons from '@/components/common/ActionButtons';
-import ToppingDialogAdd from '../../../../components/dialog/admin/topping.dialog';
+import dynamic from 'next/dynamic';
+const ToppingDialogAdd = dynamic(
+    () => import('@/components/dialog/admin/topping.dialog'),
+    { ssr: false }
+);
 import { fetcherSWR, formatNumber } from '@/lib/helpers';
 import useSWR from 'swr';
 ModuleRegistry.registerModules([
