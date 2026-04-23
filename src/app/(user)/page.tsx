@@ -59,7 +59,7 @@ export default function HomePage() {
         <AppSlider sliders={dataSliders} themeStyle={themeStyle.Dark}/>
         <section className="px-1 pb-2 mt-10">
           <h3 className="text-xl text-center font-semibold mb-4 text-pink-600">🔥 {t("Best Sellers")}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
             {dataTopProduct.map((p) => (
               <div key={p.id}>
                 <ProductPage product={p}/>

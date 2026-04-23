@@ -77,6 +77,9 @@ export default React.memo(function ToppingDialogAdd(props: Props) {
 
         reset({ name: "", price: 0});
         setPriceDisplay("");
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        
     }, [setIsOpen, setDataEdit, reset]);
 
     const onSubmit = useCallback(async (values: FormValues) => {
@@ -102,7 +105,7 @@ export default React.memo(function ToppingDialogAdd(props: Props) {
         } catch (error: any) {
             toast.error(error.message);
         }
-    }, [onUpdateSuccess, onAddSuccess, handleCloseDialog]);
+    }, [selectedFile, dataEdit, onUpdateSuccess, onAddSuccess, handleCloseDialog]);
 
     const handlePriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const raw = e.target.value.replace(/\D/g, "");

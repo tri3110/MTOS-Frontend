@@ -1,3 +1,4 @@
+import { link } from "fs";
 import { z } from "zod";
 
 export const productSchema = z.object({
@@ -13,6 +14,7 @@ export const categorySchema = z.object({
 export const sliderSchema = z.object({
   title: z.string().min(1, "Title is required"),
   order: z.number().default(0),
+  link: z.string().optional(),
 });
 
 export const toppingSchema = z.object({

@@ -70,12 +70,11 @@ export default function AppSlider(props: Props) {
             {sliders.map((slider, index) => (
                 <div key={index} className="keen-slider__slide">
                     <div className="rounded-lg overflow-hidden ">
-                        <div className="relative">
+                        <div className="relative" onClick={() => router.push(`${slider.link}`)}>
                             <img
                                 src={API_BASE_URLS.ADMIN_MEDIA + (slider.image ?? "")}
                                 alt={slider.title}
                                 className="w-full h-72 object-contain cursor-pointer"
-                                onClick={()=>router.push("/detail/" + slider.id)}
                             />
                             {/* <div className={`w-full absolute px-2 top-1 left-1 bg-blue-700 text-xl truncate py-2 text-sm font-medium 
                                     ${themeStyle.text} group-hover:text-pink-400 `

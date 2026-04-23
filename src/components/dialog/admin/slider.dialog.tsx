@@ -81,6 +81,9 @@ export default React.memo(function SliderDialogAdd(props: Props) {
             link: '',
             order: 0,
         });
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        
     }, [setIsOpen, setDataEdit, reset]);
 
     const onSubmit = useCallback(async (values: FormValues) => {
@@ -107,7 +110,7 @@ export default React.memo(function SliderDialogAdd(props: Props) {
         } catch (err) {
             toast.error("Create failed");
         }
-    }, [onUpdateSuccess, onAddSuccess, handleCloseDialog]);
+    }, [selectedFile, dataEdit, onUpdateSuccess, onAddSuccess, handleCloseDialog]);
     
     return(
         isOpen &&
@@ -150,7 +153,6 @@ export default React.memo(function SliderDialogAdd(props: Props) {
                                             <input
                                                 id="order"
                                                 type="number"
-                                                autoFocus
                                                 {...register("order")}
                                                 className="w-full border px-3 py-1 rounded"
                                             />
@@ -164,7 +166,6 @@ export default React.memo(function SliderDialogAdd(props: Props) {
                                         <input
                                             id="link"
                                             type="text"
-                                            autoFocus
                                             {...register("link")}
                                             className="w-full border px-3 py-1 rounded"
                                         />
