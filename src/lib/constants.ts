@@ -8,6 +8,7 @@ export const API_BASE_URLS = {
     GUEST: process.env.NEXT_PUBLIC_HTTP_GUEST,
     ADMIN: process.env.NEXT_PUBLIC_HTTP_ADMIN,
     ADMIN_MEDIA: process.env.NEXT_PUBLIC_HTTP_ADMIN_MEDIA,
+    AI: process.env.NEXT_PUBLIC_HTTP_AI,
 } as const;
 
 // Local Storage Keys
@@ -40,3 +41,10 @@ export const FONT_SIZES = {
     MEDIUM: 'medium',
     LARGE: 'large',
 } as const;
+
+export const PAYMENT_METHODS = [
+    { value: "cash", label: "Thanh toán khi nhận hàng" },
+    { value: "cod", label: "Cash on Delivery" },
+    { value: "momo", label: "MoMo" },
+    { value: "zalopay", label: "ZaloPay" },
+] as const;

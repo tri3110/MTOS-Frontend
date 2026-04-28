@@ -131,3 +131,30 @@ export const useNotificationStore = create<State>((set) => ({
 
     clear: () => set({ notifications: [] }),
 }));
+
+type Message = {
+    role: "user" | "bot";
+    content: string;
+};
+
+type ChatStore = {
+    messages: Message[];
+    addMessage: (msg: Message) => void;
+    clearMessages: () => void;
+};
+
+export const useChatStore = create<ChatStore>()(
+    persist(
+        (set) => ({
+        messages: [],
+            addMessage: (msg) =>
+                set((state) => ({
+                    messages: [...state.messages, msg].slice(-20)
+                })),
+            clearMessages: () => set({ messages: [] }),
+        }),
+        {
+            name: "chat-storage",
+        }
+    )
+);

@@ -41,5 +41,17 @@
   "Login required": "Chưa đăng nhập",
   "Please log in to continue with your payment.": "Bạn cần đăng nhập để thanh toán",
   "Cancel": "Hủy",
-  "Go to Login": "Đăng nhập"
+  "Go to Login": "Đăng nhập",
+  "Payment method": "Phương thức thanh toán",
+  "Shipment": "Vận chuyển",
+  "Order Voucher": "Mã giảm giá đơn hàng",
+  "Shipping Voucher": "Mã giảm giá vận chuyển",
+  "Confirm Payment": "Xác nhận thanh toán",
+  "Shipping fee:": "Tiền ship:",
+  "Free": "Miễn phí",
+  "Delivery within 30-45 minutes.": "Giao hàng trong vòng 30-45 phút.",
+  "Please enter full delivery address details.": "Vui lòng nhập đầy đủ thông tin địa chỉ giao hàng.",
+  "Please select a payment method.": "Vui lòng chọn phương thức thanh toán.",
+  "Delivery address": "Địa chỉ giao hàng",
+  "No delivery address available" : "Không có địa chỉ giao hàng nào khả dụng"
 }

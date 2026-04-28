@@ -72,7 +72,7 @@ export class CartService {
 
     static async updateCartItem(itemId: number, data: any): Promise<void> {
         const response = await fetch(API_BASE_URLS.GUEST + `cart/update/${itemId}/`, {
-            method: "PUT",
+            method: "PATCH",
             credentials: "include",
             headers: {
                 "Content-Type": "application/json",

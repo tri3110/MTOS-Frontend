@@ -8,10 +8,13 @@ import { CartService } from "@/services";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { useState } from "react";
+import PaymentDialog from "@/components/dialog/user/payment.dialog";
 
 export default function Cart() {
     const { t } = useTranslation();
     const { items, removeItem, getPrice, getTotal, increaseQuantity, decreaseQuantity } = useCartStore();
+    const [openPayment, setOpenPayment] = useState(false);
     const user = useAuthStore.getState().user;
     const router = useRouter();
 
@@ -49,7 +52,6 @@ export default function Cart() {
         try {
             await CartService.updateCartItem(item.id, { action });
 
-            // Update local state after successful update
             const currentItems = useCartStore.getState().items;
             const updatedItems = currentItems.map(cartItem => {
                 if (cartItem.id === item.id) {
@@ -85,29 +87,37 @@ export default function Cart() {
             return;
         }
 
-        const data = await CartService.createPayment({});
-
-        if (data.order_id) {
-            let attempts = 0;
-            const maxAttempts = 15;
-
-            const interval = setInterval(async () => {
-                attempts++;
-
-                const dataOrder = await CartService.getOrder(data.order_id);
-
-                if (dataOrder.payment_url) {
-                    clearInterval(interval);
-                    window.location.href = dataOrder.payment_url;
-                }
-
-                if (attempts >= maxAttempts) {
-                    clearInterval(interval);
-                    alert("Thanh toán đang chậm, vui lòng thử lại");
-                }
-            }, 2000);
-        }
+        setOpenPayment(true);
     };
+
+    const handlePaymentSubmit = async (payload: any) => {
+        try {
+            const data = await CartService.createPayment(payload);
+            if (data.order_id) {
+                let attempts = 0;
+                const maxAttempts = 15;
+
+                const interval = setInterval(async () => {
+                    attempts++;
+
+                    const dataOrder = await CartService.getOrder(data.order_id);
+
+                    if (dataOrder.payment_url) {
+                        clearInterval(interval);
+                        window.location.href = dataOrder.payment_url;
+                    }
+
+                    if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        alert("Thanh toán đang chậm, vui lòng thử lại");
+                    }
+                }, 2000);
+            }
+        }
+        catch (err) {
+            console.error(err);
+        }
+    }
     
     return (
         <div>
@@ -198,6 +208,13 @@ export default function Cart() {
                     </div>
                 </div>
             </div>
+            <PaymentDialog
+                open={openPayment}
+                onClose={() => setOpenPayment(false)}
+                onSubmit={async (payload: any) => {
+                    handlePaymentSubmit(payload)
+                }}
+            />
         </div>
     )
 }

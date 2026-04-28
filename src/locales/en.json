@@ -34,8 +34,6 @@
   "Placeholder Search": "Enter prodcut name",
   "View more": "View more",
   "Book Movie Tickets": "Book movie tickets",
-  "SCREEN": "SCREEN",
-  "SCREEN 1": "SCREEN",
   "FORMAT": "FORMAT",
   "Payment": "Payment",
   "Booking Information": "Booking information",
@@ -53,5 +51,17 @@
   "Login required": "Login required",
   "Please log in to continue with your payment.": "Please log in to continue with your payment.",
   "Cancel": "Cancel",
-  "Go to Login": "Go to Login"
+  "Go to Login": "Go to Login",
+  "Payment method": "Payment method",
+  "Shipment": "Shipment",
+  "Order Voucher": "Order Voucher",
+  "Shipping Voucher": "Shipping Voucher",
+  "Confirm Payment": "Confirm Payment",
+  "Shipping fee:": "Shipping fee:",
+  "Free": "Free",
+  "Delivery within 30-45 minutes.": "Delivery within 30-45 minutes.",
+  "Please enter full delivery address details.": "Please enter full delivery address details.",
+  "Please select a payment method.": "Please select a payment method.",
+  "Delivery address": "Delivery address",
+  "No delivery address available" : "No delivery address available"
 }

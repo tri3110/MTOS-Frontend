@@ -84,6 +84,7 @@ declare global {
         id?: number,
         code: string;
         discount_type: "percent" | "fixed";
+        voucher_type: "order" | "shipping";
         discount_value: number;
         max_usage: number;
         used_count?: number;
@@ -202,7 +203,8 @@ declare global {
         is_staff_member: boolean;
         phone: string;
         role: string;
-        avatar: string
+        avatar: string;
+        address: string;
     };
 
     interface AuthState {

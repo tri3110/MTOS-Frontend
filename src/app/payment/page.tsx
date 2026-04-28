@@ -3,7 +3,6 @@
 import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { API_BASE_URLS } from "@/lib/constants";
 import { CartService } from "@/services";
 
 function PaymentSuccess() {

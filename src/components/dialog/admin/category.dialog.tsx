@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { formatNumber } from "@/lib/helpers";
 import { toast } from "react-toastify";
 import { categorySchema } from "@/lib/validations";
 import { CategoryService } from "@/services/admin.service";
