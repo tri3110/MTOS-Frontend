@@ -1,5 +1,5 @@
 import { useCartStore, useAuthStore } from "@/utils/store";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { STORAGE_KEYS } from "@/lib/constants";
 import { CartService } from "@/services";
 
@@ -15,7 +15,7 @@ export const useCart = () => {
         }
     }, [setItems]);
 
-    const syncCart = async (): Promise<boolean> => {
+    const syncCart = useCallback(async (): Promise<boolean> => {
         try {
             if (typeof window === "undefined") return false;
 
@@ -25,12 +25,13 @@ export const useCart = () => {
             }
 
             const cart = useCartStore.getState().items;
+            const cartItems = Array.isArray(cart) ? cart : [];
             const justLoggedIn = localStorage.getItem(STORAGE_KEYS.JUST_LOGGED_IN);
 
-            if (cart.length > 0 && justLoggedIn === null) {
+            if (cartItems.length > 0 && justLoggedIn === null) {
                 localStorage.setItem(STORAGE_KEYS.JUST_LOGGED_IN, "true");
 
-                const dataCart = await CartService.syncCart(cart as any);
+                const dataCart = await CartService.syncCart(cartItems as any);
                 if (dataCart.items) {
                     setItems(dataCart.items as any);
                     return true;
@@ -45,14 +46,14 @@ export const useCart = () => {
             console.error("Sync cart error:", error);
             return false;
         }
-    };
+    }, [setItems]);
 
     useEffect(() => {
         if (!user) return;
 
         const initCart = async () => {
             const currentItems = useCartStore.getState().items;
-            if (currentItems.length === 0) {
+            if ((Array.isArray(currentItems) ? currentItems : []).length === 0) {
                 await syncCart();
             }
         };

@@ -37,7 +37,11 @@ export default function OrderProductDialog(props: Props) {
             product: selectProduct,
             quantity: quantity,
             base_price: Number(selectProduct.price),
-            options: selectedOptions,
+            options: Object.entries(selectedOptions).map(([groupId, optionId]) => ({
+                group_id: Number(groupId),
+                option_id: optionId
+            })),
+            
             toppings: selectedTopping.map(t => ({
             id: t.id,
             name: t.name,

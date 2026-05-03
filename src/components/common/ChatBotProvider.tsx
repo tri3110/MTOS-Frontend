@@ -7,6 +7,56 @@ import { useCartStore, useChatStore } from "@/utils/store";
 import { useEffect, useRef, useState } from "react";
 import { ChatBubbleLeftRightIcon, PaperAirplaneIcon, XMarkIcon} from "@heroicons/react/24/solid";
 
+const renderOptions = (options: any) => {
+    if (!options || Object.keys(options).length === 0) return null;
+
+    const parts = [];
+
+    if (options.size) parts.push(`Size: ${options.size}`);
+    if (options.ice) parts.push(`Đá: ${options.ice}`);
+    if (options.sugar) parts.push(`Đường: ${options.sugar}`);
+
+    if (parts.length === 0) return null;
+
+    return (
+        <div className="text-xs text-gray-600">
+        • {parts.join(" • ")}
+        </div>
+    );
+};
+
+const renderToppings = (toppings: any[]) => {
+    if (!toppings || toppings.length === 0) return null;
+
+    return (
+        <div className="text-xs text-gray-600">
+        • Topping:{" "}
+        {toppings.map((t, i) => (
+            <span key={i}>
+            {t.name} x{t.quantity}
+            {i !== toppings.length - 1 && ", "}
+            </span>
+        ))}
+        </div>
+    );
+};
+
+function ConfirmCard(data: any) {
+    return (
+        <div className="card">
+            <h3> Bạn muốn order </h3>
+
+            {data.data.map((item: any, i: number) => (
+                <div key={i}>
+                <b>{item.product_name}</b> x{item.quantity}
+                <div>{renderOptions(item.options)}</div>
+                <div>{renderToppings(item.toppings)}</div>
+                </div>
+            ))}
+        </div>
+    )
+}
+
 export default function ChatBotBox() {
     const [input, setInput] = useState("");
     const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +85,12 @@ export default function ChatBotBox() {
             });
 
             const data = await res.json();
-            addMessage({ role: "bot", content: data.message });
+            addMessage({
+                role: "bot",
+                content: data.message,
+                intent: data.intent,
+                data: data.data,
+            });
 
             if (data.items) {
                 useCartStore.setState({
@@ -99,7 +154,9 @@ export default function ChatBotBox() {
                                     : "bg-gray-200"
                                 }`}
                             >
-                                {msg.content}
+                                {
+                                    msg.intent === "confirm" ? <ConfirmCard data={msg.data} /> : msg.content
+                                }
                             </div>
                         ))}
 

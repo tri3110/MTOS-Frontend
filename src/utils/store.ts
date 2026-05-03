@@ -135,6 +135,11 @@ export const useNotificationStore = create<State>((set) => ({
 type Message = {
     role: "user" | "bot";
     content: string;
+
+    intent?: string;
+    data?: any;
+
+    createdAt?: number;
 };
 
 type ChatStore = {
@@ -145,16 +150,33 @@ type ChatStore = {
 
 export const useChatStore = create<ChatStore>()(
     persist(
-        (set) => ({
-        messages: [],
+        (set, get) => ({
+            messages: [],
             addMessage: (msg) =>
                 set((state) => ({
-                    messages: [...state.messages, msg].slice(-20)
+                messages: [
+                    ...state.messages,
+                    {
+                    ...msg,
+                    createdAt: Date.now(),
+                    },
+                ]
+                    .slice(-50)
+                    .filter(
+                    (m) =>
+                        Date.now() - (m.createdAt || 0) <
+                        1000 * 60 * 60 * 24
+                    ),
                 })),
+
             clearMessages: () => set({ messages: [] }),
         }),
         {
-            name: "chat-storage",
-        }
-    )
+        name: "chat-storage",
+        version: 1,
+
+        partialize: (state) => ({
+            messages: state.messages,
+        }),
+    })
 );

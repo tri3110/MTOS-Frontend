@@ -125,7 +125,7 @@ export default function Cart() {
                 <div className="p-4 grid">
                     {items.map((item) => (
                         <div key={item.id} className="flex justify-between border-b border-gray-400 p-2 rounded-xl gap-3">
-                            <div className="flex">
+                            <div className="flex gap-2">
                                 <div>
                                     <img
                                         src={API_BASE_URLS.ADMIN_MEDIA + (item?.product.image ?? "")}
@@ -137,7 +137,7 @@ export default function Cart() {
                                     {
                                         Object.entries(item.options).map(([groupId, optionId]) => {
                                             const option_group = item.product.option_groups.find(o => o.id === Number(groupId))
-                                            const option = option_group?.options.find(o => o.id === optionId);
+                                            const option = option_group?.options.find(o => o.id === Number(optionId));
 
                                             if (!option) return null;
 
@@ -182,8 +182,6 @@ export default function Cart() {
                                         </p>
                                     </div>
                                 </div>
-
-                                
                             </div>
                             <button className="h-7 w-7 top-1 cursor-pointer " onClick={() => handleRemove(item.id)}>
                                 ❌

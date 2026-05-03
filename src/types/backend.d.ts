@@ -51,12 +51,20 @@ declare global {
         order: number,
     }
 
+    type CartItemOption = {
+        group_id: number;
+        group_name?: string;
+        option_id: number;
+        option_name?: string;
+        price?: number;
+    };
+
     interface CartItem {
         id: string;
         product: ProductType;
         quantity: number;
         base_price: number;
-        options: { [groupId: number]: number };
+        options: CartItemOption[];
         toppings: {
             id: number;
             name: string;
